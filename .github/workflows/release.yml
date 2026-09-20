@@ -13,6 +13,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,53 +105,21 @@ jobs:
 
           ls -la dist/apk_staging/
 
-      - name: Deploy package repo to gh-pages
+      - name: Stage Pages feed
         run: |
           VER="${{ steps.version.outputs.version }}"
           IPK="${{ steps.version.outputs.ipk }}"
           APK="${{ steps.version.outputs.apk }}"
 
-          # Save artifacts before branch switch
-          cp -r dist /tmp/dist-save
-
-          # Configure git
-          git config user.name "kobidarch"
-          git config user.email "kobidarch@users.noreply.github.com"
-
-          # Checkout gh-pages
-          git fetch origin gh-pages
-          git checkout gh-pages
-
-          # opkg feed
-          mkdir -p packages
-          cp "/tmp/dist-save/$IPK" packages/
-          cp /tmp/dist-save/Packages packages/
-          cp /tmp/dist-save/Packages.gz packages/
-          cp /tmp/dist-save/Packages.sig packages/
-          # Remove old versions
-          find packages -name '*.ipk' ! -name "$IPK" -delete
-
-          # apk feed — serve packages.adb at root (user points to full URL)
-          mkdir -p apk
-          cp "/tmp/dist-save/$APK" apk/
-          cp /tmp/dist-save/apk_staging/packages.adb apk/ 2>/dev/null || true
-          # Remove old versions
-          find apk -name '*.apk' ! -name "$APK" -delete
-
-          # Update demo page (index.html) — rewrite both the jsdelivr CDN tag
-          # and the hardcoded login-version text so the live demo always
-          # reflects the latest tag.
-          if [ -f index.html ]; then
-            sed -i -E \
-              -e "s|@v[0-9]+\.[0-9]+\.[0-9]+|@v${VER}|g" \
-              -e "s|DoodleTheme v[0-9]+\.[0-9]+\.[0-9]+|DoodleTheme v${VER}|g" \
-              index.html
-          fi
-
-          # Commit and push
-          git add packages/ apk/ index.html 2>/dev/null || true
-          git commit -m "Update package repo: v${VER}" || echo "No changes"
-          git push origin gh-pages
+          # Assemble exactly what the site must serve: feed dirs only.
+          # (Pages deploys this artifact directly — no branch push, so a
+          # failed copy can never again look like a green deploy.)
+          rm -rf pages && mkdir -p pages/packages pages/apk
+          cp "dist/$IPK" pages/packages/
+          cp dist/Packages dist/Packages.gz dist/Packages.sig pages/packages/
+          cp "dist/$APK" pages/apk/
+          cp dist/apk_staging/packages.adb pages/apk/
+          ls -R pages
 
       - name: Deploy to GitHub Pages
         uses: actions/configure-pages@v5
@@ -156,9 +127,10 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: pages
 
       - name: Deploy Pages
+        id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Create or update GitHub Release
@@ -166,8 +138,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VER="${{ steps.version.outputs.version }}"
-          IPK="/tmp/dist-save/${{ steps.version.outputs.ipk }}"
-          APK="/tmp/dist-save/${{ steps.version.outputs.apk }}"
+          IPK="dist/${{ steps.version.outputs.ipk }}"
+          APK="dist/${{ steps.version.outputs.apk }}"
 
           # Check if release already exists (preserve manually edited notes)
           if gh release view "v${VER}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
@@ -196,8 +168,8 @@ jobs:
           **apk (OpenWrt 25.12+):**
           \`\`\`sh
           # First install: fetch signing public key (one-time)
-          wget -O /etc/apk/keys/doodle-apk.rsa.pub \
-            https://kobidarch.github.io/luci-theme-doodle/doodle-apk.rsa.pub
+          wget -O /etc/apk/keys/doodle-apk.pem \
+            https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/apk/keys/doodle-apk.pem
 
           # Add feed and install
           echo "https://kobidarch.github.io/luci-theme-doodle/apk/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
