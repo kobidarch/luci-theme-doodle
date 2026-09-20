@@ -815,6 +815,26 @@ body.has-sub-nav #content-wrap {
 #maincontent .cbi-section > .cbi-title > h3 {
   margin-top: 0;
 }
+/* Head strips escape their padded wrappers so every heading spans the
+   full card width: node-level titles pull past node padding, and sections
+   nested in value rows (e.g. Backup/Restore/Flash subsections) pull past
+   both node padding and row margins. No more half-filled headers. */
+.cbi-section-node > h3 {
+  margin-left: calc(-1 * var(--space-xl));
+  margin-right: calc(-1 * var(--space-xl));
+}
+/* Sections nested in value rows sit behind BOTH node padding and row
+   margins (24px + 24px — e.g. Backup/Restore/Flash subsections), so they
+   need a double pull to reach the card edges. */
+.cbi-section-node > .cbi-value > .cbi-section {
+  margin-left: calc(-2 * var(--space-xl));
+  margin-right: calc(-2 * var(--space-xl));
+}
+/* ...and the wrapping row contributes no top padding, so the nested
+   strip sits flush like a top-level one (no paper gap above it). */
+.cbi-section-node > .cbi-value:has(> .cbi-section) {
+  padding-top: 0;
+}
 /* Sub-headings inside section bodies (e.g. DHCP lease table titles) —
    doodle badge: smaller than the full-width section strips, one level down
    in the hierarchy. Scoped away from alert titles. */
@@ -1871,7 +1891,10 @@ body.modal-overlay-active #modal_overlay {
   padding: 0;
   margin-bottom: var(--space-md);
   line-height: 1.25;
-  overflow: hidden;
+  /* Visible (not hidden): hover tooltips must escape the box instead of
+     being clipped mid-word at its edges. Head corners are rounded to
+     match (see below). */
+  overflow: visible;
   min-width: 100px;
 }
 .ifacebox-head {
@@ -1891,6 +1914,11 @@ body.modal-overlay-active #modal_overlay {
   background: var(--sky);
   color: var(--on-pastel);
   border-bottom: var(--stroke) solid var(--ink);
+}
+/* First head follows the card's rounded top corners (matters now that
+   .ifacebox no longer clips with overflow:hidden). */
+.ifacebox-head:first-child {
+  border-radius: calc(var(--radius-lg) - var(--stroke)) calc(var(--radius-lg) - var(--stroke)) 0 0;
 }
 .ifacebox-body {
   line-height: 1.5;
@@ -2053,6 +2081,34 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
 }
 .cbi-tooltip-container:hover > .cbi-tooltip {
   display: block;
+}
+/* Long tooltip content (e.g. port statistics) arrives as unwrappable
+   .nowrap label/value pairs — without this they blow past max-width and
+   get clipped mid-word by the section frame. Wrap them into a compact
+   readable card instead. */
+.cbi-tooltip .nowrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* Port tooltips live inside tiny port heads/bodies, so shrink-to-fit
+   clamps them narrower than their content (text clipped mid-word) and the
+   intrinsic sizing mis-measures badge rows. Fixed comfortable width with
+   a scroll cap so long stat lists stay contained. */
+.ifacebox .cbi-tooltip {
+  width: 250px;
+  max-width: min(300px, 85vw);
+  max-height: 45vh;
+  overflow-y: auto;
+}
+/* Edge port boxes flip their tooltips inward so the section frame never
+   clips them: last box opens left, first box opens right. */
+div > .ifacebox:last-child .cbi-tooltip {
+  left: auto;
+  right: 0;
+}
+div > .ifacebox:first-child .cbi-tooltip {
+  left: 0;
+  right: auto;
 }
 /* Logs / terminal */
 #syslog {

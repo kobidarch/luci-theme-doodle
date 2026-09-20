@@ -74,6 +74,29 @@
   margin-top: 0;
 }
 
+/* Head strips escape their padded wrappers so every heading spans the
+   full card width: node-level titles pull past node padding, and sections
+   nested in value rows (e.g. Backup/Restore/Flash subsections) pull past
+   both node padding and row margins. No more half-filled headers. */
+.cbi-section-node > h3 {
+  margin-left: calc(-1 * var(--space-xl));
+  margin-right: calc(-1 * var(--space-xl));
+}
+
+/* Sections nested in value rows sit behind BOTH node padding and row
+   margins (24px + 24px — e.g. Backup/Restore/Flash subsections), so they
+   need a double pull to reach the card edges. */
+.cbi-section-node > .cbi-value > .cbi-section {
+  margin-left: calc(-2 * var(--space-xl));
+  margin-right: calc(-2 * var(--space-xl));
+}
+
+/* ...and the wrapping row contributes no top padding, so the nested
+   strip sits flush like a top-level one (no paper gap above it). */
+.cbi-section-node > .cbi-value:has(> .cbi-section) {
+  padding-top: 0;
+}
+
 /* Sub-headings inside section bodies (e.g. DHCP lease table titles) —
    doodle badge: smaller than the full-width section strips, one level down
    in the hierarchy. Scoped away from alert titles. */

@@ -4,7 +4,7 @@ A pastel doodle theme for OpenWrt LuCI — opaque paper cards, thick ink
 borders, hard offset shadows, and a candy palette.
 
 ![OpenWrt](https://img.shields.io/badge/OpenWrt-23.05%2B-brightgreen.svg)
-![Version](https://img.shields.io/badge/version-1.0.2-orange.svg)
+![Version](https://img.shields.io/badge/version-1.1.2-orange.svg)
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 
 ## Screenshots
