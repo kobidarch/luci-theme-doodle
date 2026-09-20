@@ -16,6 +16,10 @@ Five ways to install, from easiest to most hands-on. Pick one.
 **OpenWrt 24.10 and earlier (opkg):**
 
 ```sh
+# One-time: trust the feed signing key
+wget -O /etc/opkg/keys/456471a41001d24a \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/opkg/keys/456471a41001d24a
+
 echo "src/gz doodle https://kobidarch.github.io/luci-theme-doodle/packages" >> /etc/opkg/customfeeds.conf
 opkg update
 opkg install luci-theme-doodle
@@ -24,6 +28,10 @@ opkg install luci-theme-doodle
 **OpenWrt 25.12+ (apk):**
 
 ```sh
+# One-time: trust the feed signing key
+wget -O /etc/apk/keys/doodle-apk.pem \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/apk/keys/doodle-apk.pem
+
 echo "https://kobidarch.github.io/luci-theme-doodle/apk/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 apk update
 apk add luci-theme-doodle

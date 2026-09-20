@@ -120,14 +120,26 @@ exit 0
 SCRIPT
   chmod 755 "$APK_SCRIPT"
 
-  # Build using Alpine container with apk mkpkg
+  # Build using Alpine container with apk mkpkg.
+  # If APK_SIGN_KEY points at the RSA private key, the package is signed
+  # (required for the feed index step later). The repo's public keys are
+  # mounted so apk can verify while packing.
+  SIGN_MOUNT=""
+  SIGN_ARGS=""
+  if [ -n "$APK_SIGN_KEY" ] && [ -f "$APK_SIGN_KEY" ]; then
+    SIGN_MOUNT="-v $APK_SIGN_KEY:/pkg/sign-key.rsa:ro -v $SCRIPT_DIR/root/etc/apk/keys:/pkg/keys:ro"
+    SIGN_ARGS="--sign-key /pkg/sign-key.rsa --keys-dir /pkg/keys"
+  fi
+  # shellcheck disable=SC2086
   docker run --rm \
     -v "$DATA_DIR:/pkg/files:ro" \
     -v "$APK_SCRIPT:/pkg/post-install.sh:ro" \
     -v "$SCRIPT_DIR/$DIST_DIR:/pkg/out" \
+    $SIGN_MOUNT \
     alpine:latest sh -c "
       apk add --no-cache apk-tools-mkpkg >/dev/null 2>&1 || true
       apk mkpkg \
+        $SIGN_ARGS \
         --info 'name:$PKG_NAME' \
         --info 'version:${PKG_VERSION}-r${PKG_RELEASE}' \
         --info 'description:$DESCRIPTION' \
