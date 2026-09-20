@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Doodle Mixins — luci-theme-doodle
+   Opaque pastel cards with ink borders + hard shadows. No blur.
+   ========================================================================== */
+
+/* Standard doodle card */
+.doodle-card() {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.doodle-card-sm() {
+  background: var(--paper);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Raised pastel block (blob) */
+.doodle-blob() {
+  border: var(--stroke) solid var(--ink);
+  border-radius: 26px 10px 26px 10px;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Doodle button */
+.doodle-btn() {
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: transform .1s ease, box-shadow .1s ease;
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--shadow-col);
+  }
+  &:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--shadow-col);
+  }
+}
+
+/* Doodle input */
+.doodle-input() {
+  width: 100%;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  &:focus {
+    border-color: var(--ink);
+    box-shadow: var(--shadow-sm);
+    background: var(--paper);
+  }
+}

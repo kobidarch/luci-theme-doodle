@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Login Page — doodle card, no glass
+   ========================================================================== */
+
+.login-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-xl);
+  background: var(--bg);
+  background-image: var(--bg-dots);
+  background-size: 26px 26px;
+}
+
+.login-card {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.login-logo {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto var(--space-lg);
+  border-radius: 50%;
+  border: var(--stroke) solid var(--ink);
+  background: var(--sky);
+  box-shadow: var(--shadow-sm);
+  padding: 8px;
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+
+.login-subtitle {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.login-version {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--on-pastel);
+  background: var(--pink);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-bottom: var(--space-xl);
+}
+
+.login-form {
+  text-align: left;
+
+  .login-field {
+    margin-bottom: 14px;
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+
+    input {
+      .doodle-input();
+      max-width: none;
+      padding: 10px 12px;
+    }
+  }
+}
+
+.login-btn {
+  .doodle-btn();
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--mint);
+  color: var(--on-pastel);
+  font-size: 0.9rem;
+}
+
+.login-error {
+  background: var(--coral);
+  border: var(--stroke-thin) solid var(--ink);
+  color: var(--on-pastel);
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}

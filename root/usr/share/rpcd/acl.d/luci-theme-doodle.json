@@ -1,0 +1,18 @@
+{
+    "luci-theme-doodle": {
+        "description": "Grant access for luci-theme-doodle",
+        "read": {
+            "uci": [ "doodle" ],
+            "file": {
+                "/www/luci-static/doodle/background/*": [ "list" ]
+            },
+            "ubus": {
+                "network.interface": [ "dump" ],
+                "network.device": [ "status" ]
+            }
+        },
+        "write": {
+            "uci": [ "doodle" ]
+        }
+    }
+}

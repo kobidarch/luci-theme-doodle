@@ -1,0 +1,2256 @@
+/* ==========================================================================
+   luci-theme-doodle — Master Stylesheet
+   Import order matters: tokens → reset → mixins → layout → components → fixes
+   ========================================================================== */
+/* ==========================================================================
+   Design Tokens — luci-theme-doodle
+   Pastel doodle system. No glassmorphism: opaque paper, thick ink
+   borders, hard offset shadows. Layout IDs kept compatible with LuCI.
+   ========================================================================== */
+:root {
+  /* ---- Typography (from demo) ---- */
+  --font-display: 'Baloo 2', ui-rounded, 'Segoe UI', sans-serif;
+  --font-sans: 'Nunito', 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-size-base: 0.875rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.75rem;
+  --line-height: 1.5;
+  --font-weight-normal: 400;
+  --font-weight-medium: 600;
+  --font-weight-semibold: 700;
+  --font-weight-bold: 800;
+  /* ---- Doodle ink / paper ---- */
+  --ink: #2b2320;
+  --ink-soft: #6b5f56;
+  --bg: #fdf6ee;
+  --paper: #fffdf9;
+  --paper-2: #fff9f0;
+  --on-pastel: #2b2320;
+  /* ---- Pastel palette (from demo) ---- */
+  --pink: #ffc9d9;
+  --pink-deep: #ff8fac;
+  --mint: #bdead9;
+  --mint-deep: #63c9a0;
+  --sky: #b6e2f7;
+  --sky-deep: #63b8e0;
+  --butter: #ffe6a0;
+  --butter-deep: #ffc94d;
+  --lav: #ddccfb;
+  --lav-deep: #b28bf0;
+  --peach: #ffd7ba;
+  --peach-deep: #ff9f5b;
+  --coral: #ffb2a6;
+  --coral-deep: #ff7a63;
+  /* ---- Mapped LuCI tokens (no glass) ---- */
+  --color-primary: #ff8fac;
+  --color-primary-hover: #f06f95;
+  --color-primary-active: #d14f78;
+  --color-primary-rgb: 255, 143, 172;
+  --color-success: #63c9a0;
+  --color-warning: #ffc94d;
+  --color-danger: #ff7a63;
+  --color-info: #63b8e0;
+  --color-text: #2b2320;
+  --color-text-secondary: #6b5f56;
+  --color-text-tertiary: #a89a90;
+  --color-bg: #fdf6ee;
+  --color-bg-elevated: #fffdf9;
+  --color-bg-secondary: #fff9f0;
+  --color-border: #2b2320;
+  --color-border-strong: #2b2320;
+  --color-separator: rgba(43, 35, 32, 0.15);
+  /* ---- Doodle stroke / shadow / radius ---- */
+  --stroke: 3px;
+  --stroke-thin: 2.5px;
+  --shadow-col: #2b2320;
+  --shadow-sm: 3px 3px 0 var(--shadow-col);
+  --shadow-md: 4px 4px 0 var(--shadow-col);
+  --shadow-lg: 5px 5px 0 var(--shadow-col);
+  --shadow-xl: 6px 6px 0 var(--shadow-col);
+  /* ---- Layout (doodle shell: full-width 64px topbar + 250px sidebar) ---- */
+  --sidebar-width: 250px;
+  --header-height: 64px;
+  --subnav-height: 48px;
+  --content-max-width: none;
+  --content-padding: 26px;
+  /* ---- Radius (from demo) ---- */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 22px;
+  --radius-full: 999px;
+  /* ---- Spacing ---- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  /* ---- Transitions ---- */
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.22s ease;
+  --transition-slow: 0.22s ease;
+  /* ---- Z-index ---- */
+  --z-dropdown: 100;
+  --z-sidebar: 300;
+  --z-header: 400;
+  --z-overlay: 500;
+  --z-modal: 600;
+  --z-toast: 700;
+  /* ---- Dotted paper background ---- */
+  --bg-dots: radial-gradient(circle at 8px 8px, rgba(0, 0, 0, 0.035) 1.5px, transparent 1.6px);
+}
+/* ==========================================================================
+   Normalize / Reset — luci-theme-doodle
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-soft) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-soft);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--bg);
+  background-image: var(--bg-dots);
+  background-size: 26px 26px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+h1,
+h2,
+h3,
+.brand,
+.navlabel,
+.stat-num,
+.btn,
+.pillbtn,
+.cbi-section > h3,
+.login-title,
+.header-title {
+  font-family: var(--font-display);
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+button {
+  font: inherit;
+}
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+hr {
+  border: none;
+  border-top: var(--stroke-thin) dashed var(--ink);
+  margin: var(--space-md) 0;
+}
+p {
+  margin-bottom: var(--space-sm);
+}
+ul,
+ol {
+  padding-left: 1.5em;
+  margin: var(--space-sm) 0;
+}
+li {
+  margin-bottom: 2px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+h1 {
+  font-size: var(--font-size-2xl);
+}
+h2 {
+  font-size: var(--font-size-xl);
+}
+h3 {
+  font-size: 1.125rem;
+}
+h4 {
+  font-size: 1rem;
+}
+::selection {
+  background: var(--butter);
+  color: var(--on-pastel);
+}
+svg.icon,
+.nav-icon,
+.indicator-icon {
+  flex-shrink: 0;
+}
+/* LuCI injects <input type="submit" class="hidden"> at the top of every
+   CBI form. Hide it. */
+.hidden {
+  display: none;
+}
+/* ==========================================================================
+   Doodle Mixins — luci-theme-doodle
+   Opaque pastel cards with ink borders + hard shadows. No blur.
+   ========================================================================== */
+/* Standard doodle card */
+/* Raised pastel block (blob) */
+/* Doodle button */
+/* Doodle input */
+/* ==========================================================================
+   Layout — Doodle shell (topbar + sidebar + content)
+   IDs preserved for menu-doodle.js / footer.ut so menu-doodle.js / footer.ut keep working.
+   Zero backdrop-filter. Opaque paper + ink borders + hard shadows.
+   ========================================================================== */
+/* ---- Background layer ---- */
+#bg-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: var(--bg);
+  background-image: var(--bg-dots);
+  background-size: 26px 26px;
+}
+#bg-wrap img,
+#bg-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* ---- Topbar (maps demo .topbar) ---- */
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-left: 16px;
+  padding-right: 16px;
+  background: var(--paper);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 10px;
+}
+.sidebar-header .logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--sky);
+  border: var(--stroke) solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.sidebar-header .brand {
+  font-weight: 800;
+  font-size: 1.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--ink);
+}
+.sidebar-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: var(--stroke-thin) dashed var(--ink);
+  text-align: center;
+}
+.sidebar-footer .sidebar-version {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+/* ---- Sidebar (demo .sidebar) ---- */
+#sidebar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  z-index: var(--z-sidebar);
+  background: var(--paper-2);
+  border-right: var(--stroke) solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-normal);
+  overflow: hidden;
+}
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 14px 30px;
+}
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: var(--ink-soft);
+  border-radius: 999px;
+}
+.nav-group {
+  margin-bottom: 20px;
+}
+.nav-group .nav-group-title {
+  padding: 0 0 8px 10px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  text-transform: lowercase;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  border: 2.5px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.92rem;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.nav-item:hover {
+  background: var(--paper);
+  border-color: var(--ink);
+  transform: translate(-1px, -1px);
+}
+.nav-item.active,
+.nav-item.open {
+  background: var(--paper);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+.nav-item .nav-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  flex-shrink: 0;
+  background: var(--butter);
+  color: var(--on-pastel);
+}
+.nav-item .nav-icon svg,
+.nav-item .nav-iconsvg {
+  width: 1.15em;
+  height: 1.15em;
+}
+.nav-item .nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-item .nav-arrow {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+  transition: transform 0.22s ease;
+}
+.nav-item.open .nav-arrow {
+  transform: rotate(90deg);
+  opacity: 0.8;
+}
+/* Pastel icon circles cycle like the demo */
+.nav-group .nav-item:nth-child(6n+2) .nav-icon {
+  background: var(--sky);
+}
+.nav-group .nav-item:nth-child(6n+3) .nav-icon {
+  background: var(--mint);
+}
+.nav-group .nav-item:nth-child(6n+4) .nav-icon {
+  background: var(--butter);
+}
+.nav-group .nav-item:nth-child(6n+5) .nav-icon {
+  background: var(--lav);
+}
+.nav-group .nav-item:nth-child(6n+6) .nav-icon {
+  background: var(--pink);
+}
+.nav-group .nav-item:nth-child(6n+7) .nav-icon {
+  background: var(--peach);
+}
+.nav-sub {
+  position: relative;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+.nav-sub.open {
+  max-height: 2000px;
+  opacity: 1;
+}
+.nav-sub .nav-item {
+  padding-left: 12px;
+  font-size: 0.86rem;
+  margin-left: 20px;
+  width: calc(100% - 20px);
+}
+.nav-sub .nav-item.active {
+  background: var(--lav);
+  color: var(--on-pastel);
+}
+/* ---- Header tabs + title + status (doodle pills) ---- */
+#header-nav,
+#header-tabs {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 6px;
+}
+.header-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+  padding: 6px 14px;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+.header-title:empty {
+  display: none;
+}
+.header-tab {
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  border: 2.5px solid transparent;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.header-tab:hover {
+  background: var(--paper-2);
+  border-color: var(--ink);
+}
+.header-tab.active {
+  background: var(--butter);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+/* ---- Status indicators (doodle mini-pills) ---- */
+#status-indicators {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+#status-indicators:empty {
+  display: none;
+}
+#status-indicators [data-indicator] {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+#status-indicators [data-indicator] .indicator-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+#status-indicators [data-indicator][data-level="warn"] {
+  color: #b07400;
+}
+#status-indicators [data-indicator][data-level="crit"] {
+  color: #d14f3c;
+}
+#status-indicators [data-indicator][data-level="active"] {
+  color: #2f7fb8;
+}
+#status-indicators [data-indicator][data-level="busy"] {
+  color: #8a5fd6;
+}
+#status-indicators [data-indicator] + [data-indicator] {
+  border-left: 2px dashed rgba(43, 35, 32, 0.25);
+  padding-left: 8px;
+}
+.header-actions {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-actions:empty {
+  display: none;
+}
+/* Mobile hamburger (doodle butter square) */
+.menu-toggle {
+  display: none;
+  background: var(--butter);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-sm);
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--on-pastel);
+  box-shadow: var(--shadow-sm);
+}
+.menu-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+/* ---- Sub-navigation bar (doodle strip) ---- */
+#header-sub {
+  position: fixed;
+  top: var(--header-height);
+  left: var(--sidebar-width);
+  right: 0;
+  z-index: var(--z-header);
+  display: none;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 8px;
+  overflow-x: auto;
+  background: var(--paper-2);
+  border-bottom: var(--stroke) solid var(--ink);
+  scrollbar-width: none;
+}
+#header-sub::-webkit-scrollbar {
+  display: none;
+}
+#header-sub.active {
+  display: flex;
+}
+.sub-tab {
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.sub-tab:hover {
+  background: var(--paper);
+  border-color: var(--ink);
+}
+.sub-tab.active {
+  background: var(--sky);
+  color: var(--on-pastel);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+/* ---- Page transition ---- */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ---- Main content area (demo .main-wrap) ---- */
+#content-wrap {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+  padding: var(--content-padding);
+  animation: page-enter 0.25s ease both;
+}
+#view > :not(.spinning) {
+  animation: page-enter 0.22s ease both;
+}
+#view > .spinning {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-lg) var(--space-xl);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 100;
+}
+body.page-leaving #content-wrap {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+body.has-sub-nav #content-wrap {
+  margin-top: calc(var(--header-height) + var(--subnav-height));
+}
+#content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+/* Mobile overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(43, 35, 32, 0.35);
+  z-index: calc(var(--z-sidebar) - 1);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+/* ---- Page title ---- */
+.page-title {
+  margin-bottom: var(--space-xl);
+}
+.page-title h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+}
+.page-title .page-description {
+  margin-top: var(--space-xs);
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+/* ---- Footer ---- */
+.doodle-footer {
+  margin-left: var(--sidebar-width);
+  padding: var(--space-lg) var(--content-padding) 40px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-weight: 700;
+  transition: margin-left var(--transition-normal);
+}
+.doodle-footer a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.doodle-footer a:hover {
+  color: var(--ink);
+}
+.doodle-footer .footer-sep {
+  margin: 0 var(--space-sm);
+  opacity: 0.4;
+}
+/* ==========================================================================
+   Components — Doodle CBI forms, tables, buttons, inputs
+   No translucency, no blur. Paper + ink + hard shadows + pastel accents.
+   ========================================================================== */
+/* ---- CBI Sections (demo .card) ---- */
+.cbi-section {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0;
+  margin-bottom: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+  /* Nested sections — flatten */
+}
+.cbi-section:has(.cbi-dropdown[open]) {
+  z-index: var(--z-dropdown);
+}
+.cbi-section .cbi-section {
+  padding: 0;
+  margin-bottom: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+.cbi-section > .cbi-section-node,
+.cbi-section > div:not(h3):not(.cbi-section-descr) {
+  padding: 0 var(--space-xl);
+}
+.cbi-section > div:last-child {
+  padding-bottom: var(--space-xl);
+}
+.cbi-section-descr {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 var(--space-xl) var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1.5px dashed rgba(43, 35, 32, 0.25);
+}
+.cbi-section > h3,
+.cbi-section-node > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  margin: 0 0 var(--space-md);
+  padding: 10px 16px;
+  background: var(--butter);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+/* Cycle pastel section headers */
+.cbi-section:nth-of-type(3n+2) > h3 {
+  background: var(--mint);
+}
+.cbi-section:nth-of-type(3n+3) > h3 {
+  background: var(--sky);
+}
+/* Head strips sit flush against the card top. Without this, the generic
+   view-h3 rule (higher specificity) leaves a paper gap above the strip,
+   making headers look half-filled/floating. */
+#view .cbi-section > h3,
+#view .cbi-section-node > h3,
+#view .cbi-section > .cbi-title > h3,
+#maincontent .cbi-section > h3,
+#maincontent .cbi-section-node > h3,
+#maincontent .cbi-section > .cbi-title > h3 {
+  margin-top: 0;
+}
+/* Sub-headings inside section bodies (e.g. DHCP lease table titles) —
+   doodle badge: smaller than the full-width section strips, one level down
+   in the hierarchy. Scoped away from alert titles. */
+.cbi-section-node h4,
+.cbi-value > h4 {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  background: var(--mint);
+  color: var(--on-pastel);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  box-shadow: var(--shadow-sm);
+  margin: var(--space-md) 0;
+}
+/* ---- Section fold/collapse ---- */
+.cbi-section.fade-in .cbi-title {
+  display: flex;
+  align-items: center;
+  background: var(--butter);
+  border-bottom: var(--stroke) solid var(--ink);
+  padding: 6px 12px 6px 16px;
+}
+.cbi-section.fade-in .cbi-title > h3 {
+  flex: 1;
+  margin-bottom: 0;
+  background: none;
+  border: none;
+  padding: 4px 0;
+}
+.cbi-section.fade-in .cbi-title > div:last-child {
+  flex-shrink: 0;
+  margin-left: var(--space-md);
+}
+.cbi-section.fade-in .cbi-title > div:last-child span {
+  font-size: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  transition: transform 0.12s ease;
+}
+.cbi-section.fade-in .cbi-title > div:last-child span:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--shadow-col);
+}
+.cbi-section.fade-in .cbi-title > div:last-child span::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  transform: rotate(-135deg);
+  transition: transform 0.2s ease;
+  margin-top: 3px;
+}
+.cbi-section.fade-in .cbi-title > div:last-child span[data-style="inactive"]::after {
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+/* ---- CBI Map ---- */
+.cbi-map {
+  margin-bottom: var(--space-xl);
+}
+/* Overview status includes — title row lives in .cbi-title (no .fade-in).
+   Same doodle head strip as section h3, plus pastel cycling.
+   Scoped to non-.fade-in: .fade-in sections already paint the .cbi-title
+   container butter, so a second strip on the h3 would double-frame. */
+.cbi-section:not(.fade-in) > .cbi-title > h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--butter);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+.cbi-section:not(.fade-in):nth-of-type(3n+2) > .cbi-title > h3 {
+  background: var(--mint);
+}
+.cbi-section:not(.fade-in):nth-of-type(3n+3) > .cbi-title > h3 {
+  background: var(--sky);
+}
+/* Hide/Show toggle pill (overview status includes) */
+.cbi-section > .cbi-title > h3 > .label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 3px 12px;
+  min-width: 4em;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--shadow-col);
+  transition: transform 0.1s ease;
+}
+.cbi-section > .cbi-title > h3 > .label:hover {
+  transform: translate(-1px, -1px);
+}
+.cbi-section > .cbi-title > h3 > .label[data-style="active"] {
+  background: var(--pink);
+  color: var(--on-pastel);
+}
+.cbi-map-descr,
+.cbi-map > h2,
+#view > h2,
+#maincontent > h2 {
+  display: none;
+}
+.cbi-map-descr[data-moved],
+#view > h2 + [data-moved] {
+  display: none;
+}
+/* Page head injected by JS? Style standalone h2 like demo page-head */
+#maincontent > h2,
+#view > h2 {
+  font-size: 1.9rem;
+  margin: 0 0 4px;
+}
+/* ---- CBI Value rows (demo .kv) ---- */
+.cbi-value {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 0;
+  margin: 0 var(--space-xl);
+  border-bottom: 1.5px dashed rgba(43, 35, 32, 0.18);
+  gap: 10px;
+}
+.cbi-value:last-child {
+  border-bottom: none;
+}
+.cbi-value:has(> .cbi-section),
+.cbi-value:has(> table) {
+  display: block;
+}
+.cbi-value-title {
+  flex: 0 0 200px;
+  padding-right: var(--space-xl);
+  padding-top: var(--space-sm);
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+}
+.cbi-value-description {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  margin-top: var(--space-xs);
+  font-weight: 600;
+}
+.cbi-value-field {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+/* ---- Inputs (demo .field) ---- */
+.cbi-input-text,
+.cbi-input-password,
+input[type="text"],
+input[type="password"],
+input[type="number"],
+textarea {
+  width: 100%;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  max-width: 400px;
+}
+.cbi-input-text:focus,
+.cbi-input-password:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  background: var(--paper);
+}
+textarea {
+  max-width: 100%;
+  min-height: 80px;
+  resize: vertical;
+}
+select {
+  width: 100%;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  width: auto;
+  min-width: 150px;
+  cursor: pointer;
+}
+select:focus {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  background: var(--paper);
+}
+/* ---- Buttons (demo .btn) ---- */
+.btn,
+.cbi-button {
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  gap: 6px;
+}
+.btn:hover,
+.cbi-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--shadow-col);
+}
+.btn:active,
+.cbi-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--shadow-col);
+}
+.btn:disabled,
+.cbi-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+.cbi-button-positive,
+.cbi-button-apply,
+.cbi-button-action,
+.cbi-button-reload,
+.cbi-button[value="Submit"],
+.cbi-button[value="Upload"],
+.cbi-button[value$="Apply"] {
+  background: var(--sky);
+  color: var(--on-pastel);
+}
+.cbi-button-save {
+  background: var(--mint);
+  color: var(--on-pastel);
+}
+.cbi-button-negative,
+.cbi-button-remove,
+.cbi-button-reset {
+  background: var(--coral);
+  color: var(--on-pastel);
+}
+/* Danger buttons rendered as plain .btn (e.g. repokeys delete modal) */
+.btn.danger,
+.cbi-button.danger {
+  background: var(--coral);
+  color: var(--on-pastel);
+}
+.cbi-button-neutral,
+.cbi-button-link,
+.cbi-button-edit,
+.cbi-button-find,
+.cbi-button-add,
+.cbi-button-download,
+.cbi-button-up,
+.cbi-button-down {
+  background: var(--paper);
+  color: var(--ink);
+}
+/* Extra pastel mapping for common actions */
+.cbi-button-add {
+  background: var(--butter);
+  color: var(--on-pastel);
+}
+.cbi-button-edit {
+  background: var(--lav);
+  color: var(--on-pastel);
+}
+.cbi-page-actions {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md) var(--space-xl);
+  margin-top: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+/* ---- Tables (demo .doodle table) ---- */
+.table,
+table.cbi-section-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+.table thead tr th,
+table.cbi-section-table thead tr th,
+.table .tr.table-titles th,
+table.cbi-section-table .tr.table-titles th,
+.table .tr.cbi-section-table-titles th,
+table.cbi-section-table .tr.cbi-section-table-titles th,
+.table thead tr .th,
+table.cbi-section-table thead tr .th,
+.table .tr.table-titles .th,
+table.cbi-section-table .tr.table-titles .th,
+.table .tr.cbi-section-table-titles .th,
+table.cbi-section-table .tr.cbi-section-table-titles .th {
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 800;
+  font-family: var(--font-display);
+  background: var(--butter);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+  white-space: nowrap;
+}
+.table tbody tr td,
+table.cbi-section-table tbody tr td,
+.table .tr td,
+table.cbi-section-table .tr td,
+.table tbody tr .td,
+table.cbi-section-table tbody tr .td,
+.table .tr .td,
+table.cbi-section-table .tr .td {
+  padding: 9px 12px;
+  border-bottom: 1.5px dashed rgba(43, 35, 32, 0.2);
+  background: var(--paper);
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+.table tbody tr:last-child td,
+table.cbi-section-table tbody tr:last-child td,
+.table .tr:last-child td,
+table.cbi-section-table .tr:last-child td,
+.table tbody tr:last-child .td,
+table.cbi-section-table tbody tr:last-child .td,
+.table .tr:last-child .td,
+table.cbi-section-table .tr:last-child .td {
+  border-bottom: none;
+}
+.table tbody tr td:last-child:has(.cbi-button),
+table.cbi-section-table tbody tr td:last-child:has(.cbi-button),
+.table .tr td:last-child:has(.cbi-button),
+table.cbi-section-table .tr td:last-child:has(.cbi-button),
+.table tbody tr .td:last-child:has(.cbi-button),
+table.cbi-section-table tbody tr .td:last-child:has(.cbi-button),
+.table .tr .td:last-child:has(.cbi-button),
+table.cbi-section-table .tr .td:last-child:has(.cbi-button) {
+  text-align: right;
+  white-space: nowrap;
+}
+.table tbody tr td:last-child:has(.cbi-button) .cbi-button,
+table.cbi-section-table tbody tr td:last-child:has(.cbi-button) .cbi-button,
+.table .tr td:last-child:has(.cbi-button) .cbi-button,
+table.cbi-section-table .tr td:last-child:has(.cbi-button) .cbi-button,
+.table tbody tr .td:last-child:has(.cbi-button) .cbi-button,
+table.cbi-section-table tbody tr .td:last-child:has(.cbi-button) .cbi-button,
+.table .tr .td:last-child:has(.cbi-button) .cbi-button,
+table.cbi-section-table .tr .td:last-child:has(.cbi-button) .cbi-button {
+  min-width: 6rem;
+  text-align: center;
+}
+.table tbody tr:hover td,
+table.cbi-section-table tbody tr:hover td,
+.table .tr:hover td,
+table.cbi-section-table .tr:hover td,
+.table tbody tr:hover .td,
+table.cbi-section-table tbody tr:hover .td,
+.table .tr:hover .td,
+table.cbi-section-table .tr:hover .td {
+  background: var(--paper-2);
+}
+/* Table wrapper inside cards — the card provides the frame, so the table
+   itself stays flat (no double borders / poking corners). Tables with an
+   inline width (e.g. realtime legend) keep auto width to avoid overflow. */
+.cbi-section > .table,
+.cbi-section > table.cbi-section-table {
+  margin: 0 var(--space-xl) var(--space-lg);
+  width: calc(100% - var(--space-xl) * 2);
+  border-radius: 0;
+}
+.cbi-section > .table[style*="width"],
+.cbi-section > table.cbi-section-table[style*="width"] {
+  width: auto;
+}
+/* thead-less tables (e.g. realtime legend) get a top frame */
+.table:not(:has(thead)):not(:has(.tr.table-titles)):not(:has(.tr.cbi-section-table-titles)) {
+  border-top: var(--stroke-thin) solid var(--ink);
+}
+/* Tables whose body has an actions column but whose header doesn't
+   (e.g. repokeys TableSection): stretch the butter header strip over it */
+.table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions)) thead tr::after {
+  content: '';
+  display: table-cell;
+  background: var(--butter);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+/* ---- CBI Dynamic List ---- */
+.cbi-dynlist {
+  line-height: 1.3;
+  flex-direction: column;
+  min-height: 30px;
+  cursor: text;
+  gap: 10px;
+}
+.cbi-dynlist > .item {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  position: relative;
+  max-width: 25rem;
+  pointer-events: none;
+  color: var(--ink);
+  outline: 0;
+}
+.cbi-dynlist > .item::after {
+  content: "\00D7";
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem !important;
+  height: 2.5rem;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--on-pastel);
+  border: var(--stroke-thin) solid var(--ink);
+  border-left: none;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--coral);
+  box-sizing: border-box;
+}
+.cbi-dynlist > .item > span {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
+  min-width: 15.5rem;
+  width: 15.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.5em;
+  color: var(--ink);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  border-right: none;
+  background: var(--paper-2);
+}
+.cbi-dynlist > .add-item {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  min-width: 15.5rem;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+.cbi-dynlist > .add-item input {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
+  min-width: 15.5rem;
+  width: 15.5rem;
+  font-size: 0.85rem;
+  line-height: 1.5rem;
+  color: var(--ink);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+}
+.cbi-dynlist > .add-item .cbi-button-add {
+  width: 2.5rem !important;
+  padding: 0.5rem 0 !important;
+  font-size: 1.2rem;
+  color: var(--on-pastel);
+  background: var(--mint);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+/* ---- CBI Dropdown (doodle) ---- */
+.cbi-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 150px;
+  cursor: pointer;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+.cbi-dropdown > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.cbi-dropdown > ul > li {
+  display: none;
+  padding: 6px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cbi-dropdown > ul > li[display] {
+  display: flex;
+  align-items: center;
+}
+.cbi-dropdown > ul > li[placeholder]:not([display]) {
+  display: none;
+}
+.cbi-dropdown > ul > li[placeholder][display] {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.cbi-dropdown[open] {
+  position: relative;
+  z-index: var(--z-modal);
+  box-shadow: var(--shadow-md);
+}
+.cbi-dropdown[open] > ul.dropdown {
+  position: absolute;
+  z-index: var(--z-modal);
+  min-width: 100%;
+  max-height: 250px !important;
+  overflow-y: auto;
+  display: block;
+  border-radius: var(--radius-md);
+  padding: 6px;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+.cbi-dropdown[open] > ul.dropdown > li {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+.cbi-dropdown[open] > ul.dropdown > li:hover {
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+}
+.cbi-dropdown[open] > ul.dropdown > li[selected] {
+  background: var(--lav);
+  color: var(--on-pastel);
+  font-weight: 700;
+  border: 2px solid var(--ink);
+}
+.cbi-dropdown[open] > ul.preview {
+  display: flex;
+}
+.cbi-dropdown > div {
+  display: none;
+}
+/* ---- Tabs (demo swatch pills) ---- */
+.cbi-tabmenu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 0 var(--space-xl) var(--space-xl);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+}
+.cbi-tabmenu li a {
+  display: block;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  border: 2.5px solid transparent;
+  text-decoration: none;
+}
+.cbi-tabmenu li a:hover {
+  background: var(--paper);
+  border-color: var(--ink);
+}
+.cbi-tabmenu li.cbi-tab a {
+  background: var(--lav);
+  color: var(--on-pastel);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+[data-tab][data-tab-title]:not([data-tab-active="true"]) {
+  display: none;
+}
+/* ---- Alerts (demo .blob) ---- */
+.alert-message,
+.cbi-section-error {
+  padding: 14px 16px;
+  border-radius: 26px 10px 26px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 var(--space-xl) var(--space-lg);
+  color: var(--on-pastel);
+  background: var(--sky);
+  border: var(--stroke) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+.alert-message > h4,
+.cbi-section-error > h4,
+.alert-message > .title,
+.cbi-section-error > .title,
+.alert-message > strong:first-child,
+.cbi-section-error > strong:first-child {
+  font-family: var(--font-display);
+  margin-bottom: 6px;
+}
+.alert-message.notice,
+.alert-message.info {
+  background: var(--sky);
+}
+.alert-message.warning {
+  background: var(--butter);
+}
+.alert-message.error,
+.cbi-section-error {
+  background: var(--coral);
+}
+.alert-message.success {
+  background: var(--mint);
+}
+/* Standalone alerts (password warning, noscript) */
+#maincontent > .alert-message {
+  margin: 0 0 var(--space-lg);
+}
+/* ---- Progress bars (demo .bar-track) ---- */
+.cbi-progressbar {
+  position: relative;
+  height: 14px;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.cbi-progressbar > div {
+  height: 100%;
+  border-right: var(--stroke-thin) solid var(--ink);
+  transition: width var(--transition-normal);
+  background: var(--sky-deep);
+}
+.cbi-progressbar::after {
+  content: attr(title);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+/* ---- Checkbox & Radio ---- */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--pink-deep);
+  width: 1.1em;
+  height: 1.1em;
+}
+/* ---- Modal (demo .placeholder) ---- */
+#modal_overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(43, 35, 32, 0.35);
+  z-index: var(--z-modal);
+}
+#modal_overlay > .modal {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-2xl);
+  max-width: 600px;
+  min-width: 270px;
+  width: calc(100% - var(--space-2xl) * 2);
+  max-height: calc(100vh - 4em);
+  overflow-y: auto;
+  z-index: calc(var(--z-modal) + 1);
+}
+#modal_overlay > .modal > .cbi-section,
+#modal_overlay > .modal > form > .cbi-section,
+#modal_overlay > .modal > .cbi-map > .cbi-section {
+  box-shadow: none;
+  margin: 0 0 var(--space-lg);
+}
+#modal_overlay > .modal:has(.cbi-dropdown[open]) {
+  overflow: visible;
+}
+#modal_overlay > .modal.cbi-modal,
+#modal_overlay > .modal.uci-dialog {
+  max-width: 900px;
+}
+body.modal-overlay-active #modal_overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* UCI Changes dialog */
+.uci-dialog .cbi-section {
+  box-shadow: none;
+}
+.uci-change-legend {
+  padding: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.uci-change-legend-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.uci-change-legend-label > ins,
+.uci-change-legend-label > del,
+.uci-change-legend-label > var {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 6px;
+  margin-right: 6px;
+  border: 2px solid var(--ink);
+  text-indent: -9999px;
+  overflow: hidden;
+}
+.uci-change-legend-label > ins {
+  background: var(--mint);
+}
+.uci-change-legend-label > del {
+  background: var(--coral);
+}
+.uci-change-legend-label > var {
+  background: var(--sky);
+}
+.uci-change-list {
+  font-family: inherit;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.uci-change-list ins,
+.uci-change-list del,
+.uci-change-list var {
+  display: block;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-style: normal;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: var(--stroke-thin) solid var(--ink);
+}
+.uci-change-list ins {
+  background: var(--mint);
+  color: var(--on-pastel);
+}
+.uci-change-list del {
+  background: var(--coral);
+  color: var(--on-pastel);
+}
+.uci-change-list var {
+  background: var(--sky);
+  color: var(--on-pastel);
+}
+.uci-change-list var ins,
+.uci-change-list var del {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: inherit;
+}
+.uci-change-list + .right,
+.uci-dialog .right {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+/* ==========================================================================
+   Login Page — doodle card, no glass
+   ========================================================================== */
+.login-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-xl);
+  background: var(--bg);
+  background-image: var(--bg-dots);
+  background-size: 26px 26px;
+}
+.login-card {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+.login-logo {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto var(--space-lg);
+  border-radius: 50%;
+  border: var(--stroke) solid var(--ink);
+  background: var(--sky);
+  box-shadow: var(--shadow-sm);
+  padding: 8px;
+}
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.login-subtitle {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.login-version {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--on-pastel);
+  background: var(--pink);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-bottom: var(--space-xl);
+}
+.login-form {
+  text-align: left;
+}
+.login-form .login-field {
+  margin-bottom: 14px;
+}
+.login-form .login-field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+.login-form .login-field input {
+  width: 100%;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  outline: none;
+  max-width: none;
+  padding: 10px 12px;
+}
+.login-form .login-field input:focus {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  background: var(--paper);
+}
+.login-btn {
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--mint);
+  color: var(--on-pastel);
+  font-size: 0.9rem;
+}
+.login-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--shadow-col);
+}
+.login-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--shadow-col);
+}
+.login-error {
+  background: var(--coral);
+  border: var(--stroke-thin) solid var(--ink);
+  color: var(--on-pastel);
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+/* ==========================================================================
+   Responsive — doodle mobile (matches demo 880px breakpoint)
+   ========================================================================== */
+/* Tablet: sidebar becomes drawer */
+@media (max-width: 1024px) {
+  #sidebar {
+    top: var(--header-height);
+    bottom: 0;
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+    z-index: 46;
+    width: 250px;
+    box-shadow: var(--shadow-lg);
+  }
+  #sidebar.open {
+    transform: translateX(0);
+  }
+  #header {
+    left: 0;
+    right: 0;
+  }
+  #header-sub {
+    left: 0;
+  }
+  #content-wrap {
+    margin-left: 0;
+  }
+  .doodle-footer {
+    margin-left: 0;
+  }
+  .menu-toggle {
+    display: inline-flex;
+  }
+  .sidebar-overlay.active {
+    display: block;
+  }
+}
+/* Match demo: collapse grids at 880px */
+@media (max-width: 880px) {
+  #status-indicators {
+    display: none !important;
+  }
+}
+/* Mobile: tighter spacing */
+@media (max-width: 640px) {
+  :root {
+    --content-padding: 14px;
+  }
+  #header {
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 8px;
+  }
+  .header-title {
+    display: none;
+  }
+  #content-wrap {
+    padding: 18px 14px 50px;
+  }
+  .cbi-value {
+    flex-direction: column;
+  }
+  .cbi-value-title {
+    flex: none;
+    padding-right: 0;
+    padding-bottom: var(--space-xs);
+  }
+  .cbi-page-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cbi-page-actions .cbi-button {
+    width: 100%;
+  }
+  .login-card {
+    padding: 30px 20px;
+  }
+  .cbi-tabmenu {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .cbi-tabmenu li a {
+    white-space: nowrap;
+  }
+  table.cbi-section-table,
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+/* ==========================================================================
+   Page Fixes — doodle overrides for LuCI-generated content
+   ========================================================================== */
+#maincontent {
+  padding: 0;
+}
+/* Interface boxes → doodle iface cards */
+.ifacebox {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: inline-flex;
+  flex-direction: column;
+  padding: 0;
+  margin-bottom: var(--space-md);
+  line-height: 1.25;
+  overflow: hidden;
+  min-width: 100px;
+}
+.ifacebox-head {
+  font-family: var(--font-display);
+  font-weight: 800;
+  padding: 10px 16px;
+  margin: 0;
+  background: var(--mint);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+  /* Zone-colored header (inline style) — pastel-ify to fit doodle */
+}
+.ifacebox-head[style*="background"] {
+  filter: saturate(0.55) brightness(1.07);
+}
+.ifacebox-head.active {
+  background: var(--sky);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+.ifacebox-body {
+  line-height: 1.5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 12px 16px 16px;
+}
+.ifacebox-body > span {
+  display: block;
+  padding: 4px 0;
+}
+.ifacebox-body > span > .nowrap {
+  display: inline-block;
+  margin-right: var(--space-md);
+  margin-bottom: 2px;
+}
+.ifacebox-body > span > .nowrap > strong {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.ifacebox-body > div {
+  margin-top: var(--space-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* Ifaceboxes nested inside sections (e.g. Overview upstream blocks) —
+   flatten so they don't double-frame and their shadows don't get clipped
+   by the section's overflow. (Port-grid boxes below keep their cards:
+   that rule is more specific.) */
+.cbi-section .ifacebox {
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0 0 var(--space-md);
+  min-width: 0;
+}
+.cbi-section .ifacebox-head {
+  align-self: flex-start;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.82rem;
+}
+.cbi-section .ifacebox-body {
+  padding: 8px 2px 0;
+}
+/* Port status grid */
+div[style*="display:grid;grid-template-columns:repeat"] {
+  gap: var(--space-md) !important;
+  margin-bottom: var(--space-lg) !important;
+}
+div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox {
+  margin: 0 !important;
+  text-align: center;
+}
+div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-head {
+  padding: 8px;
+  font-size: 0.85rem;
+}
+div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body {
+  padding: 8px;
+  font-size: 0.82rem;
+}
+div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body img {
+  width: 28px;
+  height: 28px;
+  margin: 2px auto;
+}
+/* Network status table */
+.network-status-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+.network-status-table .ifacebox {
+  flex: 1 1 300px;
+  margin: 0;
+}
+/* Badges → doodle tagpills */
+.ifacebadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 var(--shadow-col);
+}
+.ifacebadge img {
+  width: 16px;
+  height: 16px;
+}
+.zonebadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border: 2px solid var(--ink);
+  background: var(--lav);
+  color: var(--on-pastel);
+  /* Zone-colored badge (inline style) — pastel-ify to fit doodle */
+}
+.zonebadge[style*="background"] {
+  filter: saturate(0.55) brightness(1.07);
+}
+/* Ifaceboxes rendered inside grid table cells (Interfaces page) — flatten
+   the nested card so it doesn't double-frame inside the table cell. */
+.cbi-section-table .ifacebox,
+.table .ifacebox {
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0;
+  min-width: 0;
+}
+.cbi-section-table .ifacebox-head,
+.table .ifacebox-head {
+  align-self: flex-start;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.82rem;
+}
+.cbi-section-table .ifacebox-body,
+.table .ifacebox-body {
+  padding: 8px 2px 0;
+}
+/* Tooltips → doodle mini card */
+.cbi-tooltip-container {
+  position: relative;
+}
+.cbi-tooltip {
+  display: none;
+  position: absolute;
+  z-index: var(--z-toast);
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 8px;
+  background: var(--paper);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  max-width: 300px;
+  white-space: normal;
+  line-height: 1.5;
+}
+.cbi-tooltip.left {
+  left: auto;
+  right: 0;
+}
+.cbi-tooltip-container:hover > .cbi-tooltip {
+  display: block;
+}
+/* Logs / terminal */
+#syslog {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  overflow-y: auto;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre {
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.modal pre {
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: var(--space-sm) 0;
+}
+/* Native progress */
+progress {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 14px;
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+progress::-webkit-progress-bar {
+  background: var(--paper-2);
+  border-radius: 999px;
+}
+progress::-webkit-progress-value {
+  background: var(--sky-deep);
+  border-right: var(--stroke-thin) solid var(--ink);
+}
+progress::-moz-progress-bar {
+  background: var(--sky-deep);
+  border-radius: 999px;
+}
+#error-message {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+#diag-rc-output,
+.cbi-filebrowser {
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+#cbi_apply_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(43, 35, 32, 0.35);
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#cbi_apply_overlay .spinning {
+  width: 40px;
+  height: 40px;
+  padding-left: 0 !important;
+  border: 3px solid var(--paper-2);
+  border-top-color: var(--pink-deep);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+#cbi_apply_overlay .spinning::before {
+  display: none;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Utilities */
+.nowrap {
+  white-space: nowrap;
+}
+.left {
+  text-align: left;
+}
+.center {
+  text-align: center;
+}
+.right {
+  text-align: right;
+}
+@media (max-width: 640px) {
+  .hide-xs {
+    display: none !important;
+  }
+}
+#maincontent h3,
+#view h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: var(--space-xl) 0 var(--space-md);
+}
+.th[data-sort-direction] {
+  cursor: pointer;
+  user-select: none;
+}
+.tr.placeholder .td {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  color: var(--ink-soft);
+  font-style: italic;
+  font-weight: 600;
+}
+/* Software page layout fixes (doodle table layout) */
+[data-page="admin-system-opkg"] div.btn,
+[data-page="admin-system-package-manager"] div.btn {
+  display: inline-flex;
+  padding: 7px 14px;
+}
+[data-page="admin-system-opkg"] .controls,
+[data-page="admin-system-package-manager"] .controls {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  gap: var(--space-md) var(--space-lg) !important;
+  margin: 0 var(--space-xl) var(--space-lg) !important;
+}
+[data-page="admin-system-opkg"] .controls > div,
+[data-page="admin-system-package-manager"] .controls > div {
+  padding: 0 !important;
+  white-space: normal !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+}
+[data-page="admin-system-opkg"] .controls > div:first-child,
+[data-page="admin-system-package-manager"] .controls > div:first-child {
+  flex: 1 1 100% !important;
+}
+[data-page="admin-system-opkg"] .controls > div:nth-child(2),
+[data-page="admin-system-package-manager"] .controls > div:nth-child(2) {
+  flex: 1 1 200px !important;
+}
+[data-page="admin-system-opkg"] .controls > div:nth-child(3),
+[data-page="admin-system-package-manager"] .controls > div:nth-child(3) {
+  flex: 1 1 280px !important;
+}
+[data-page="admin-system-opkg"] .controls > div:nth-child(4),
+[data-page="admin-system-package-manager"] .controls > div:nth-child(4) {
+  flex: 1 1 100% !important;
+}
+[data-page="admin-system-opkg"] .controls > div:nth-child(5),
+[data-page="admin-system-package-manager"] .controls > div:nth-child(5) {
+  flex: 1 1 100% !important;
+}
+[data-page="admin-system-opkg"] .controls > div > label,
+[data-page="admin-system-package-manager"] .controls > div > label {
+  flex-basis: 100% !important;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  color: var(--ink) !important;
+  margin-bottom: 5px !important;
+}
+[data-page="admin-system-opkg"] .controls .control-group,
+[data-page="admin-system-package-manager"] .controls .control-group {
+  display: flex !important;
+  gap: 8px !important;
+  flex: 1 1 auto !important;
+  align-items: center !important;
+}
+/* ---- SSH-Keys page: custom view without .cbi-section wrapper ----
+   Give the orphan content a doodle card so it doesn't float raw.
+   (Views render inside #view, so target through it.) */
+[data-page="admin-system-admin-sshkeys"] #maincontent > #view > div {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  padding-bottom: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+[data-page="admin-system-admin-sshkeys"] #maincontent > #view > div > h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1.02rem;
+  font-weight: 800;
+  margin: 0 0 var(--space-md);
+  padding: 10px 16px;
+  background: var(--mint);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+[data-page="admin-system-admin-sshkeys"] #maincontent > #view > div > .cbi-section-descr {
+  margin: 0 var(--space-xl) var(--space-lg);
+}
+[data-page="admin-system-admin-sshkeys"] #maincontent > #view > div > .cbi-section-node {
+  padding: 0 var(--space-xl);
+}

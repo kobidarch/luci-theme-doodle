@@ -1,0 +1,15 @@
+{
+	"admin/system/doodle": {
+		"title": "Doodle Theme Config",
+		"order": 90,
+		"action": {
+			"type": "view",
+			"path": "system/doodle"
+		},
+		"depends": {
+			"acl": [
+				"luci-theme-doodle"
+			]
+		}
+	}
+}

@@ -1,0 +1,126 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Accent Colors"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Accent color used for active elements and links."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Active"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Background"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Base font size"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Configure the appearance of the Doodle theme. Pastel doodle style, light only. Changes take effect after saving and refreshing the page."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Current background"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Doodle Theme"
+msgstr ""
+
+#: root/usr/share/luci/menu.d/luci-theme-doodle.json:3
+msgid "Doodle Theme Config"
+msgstr ""
+
+#: root/usr/share/rpcd/acl.d/luci-theme-doodle.json:3
+msgid "Grant access for luci-theme-doodle"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Header status bar"
+msgstr ""
+
+#: ucode/template/themes/doodle/sysauth.ut
+msgid "Invalid username and/or password! Please try again."
+msgstr ""
+
+#: ucode/template/themes/doodle/header.ut
+msgid "JavaScript required!"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Large (16px)"
+msgstr ""
+
+#: ucode/template/themes/doodle/sysauth.ut
+msgid "Log in"
+msgstr ""
+
+#: ucode/template/themes/doodle/sysauth.ut
+msgid "Login"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "No background set. Upload an image or video named \"bg\" (e.g. bg.jpg, bg.png, bg.mp4) to /www/luci-static/doodle/background/ via SCP."
+msgstr ""
+
+#: ucode/template/themes/doodle/header.ut
+msgid "No password set!"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Normal (14px)"
+msgstr ""
+
+#: ucode/template/themes/doodle/sysauth.ut
+msgid "Password"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Primary color"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Scales all text in the theme. Larger values improve readability on high-DPI displays."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Show live system stats (CPU, RAM, network, uptime) in the header. Disable to reduce resource usage on low-end devices."
+msgstr ""
+
+#: ucode/template/themes/doodle/sysauth.ut
+msgid "Sign in to continue"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Small (13px)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Extra Large (18px)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "General"
+msgstr ""
+
+#: ucode/template/themes/doodle/header.ut
+msgid "There is no password set on this router. Please configure a root password to protect the web interface."
+msgstr ""
+
+#: ucode/template/themes/doodle/sysauth.ut
+msgid "Username"
+msgstr ""
+
+#: ucode/template/themes/doodle/header.ut
+msgid "You must enable JavaScript in your browser or LuCI will not work properly."
+msgstr ""
+
+#: ucode/template/themes/doodle/header.ut
+msgid "Go to password configuration..."
+msgstr ""

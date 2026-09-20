@@ -1,0 +1,134 @@
+/* ==========================================================================
+   Normalize / Reset — luci-theme-doodle
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-soft) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ink-soft);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--bg);
+  background-image: var(--bg-dots);
+  background-size: 26px 26px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3,
+.brand, .navlabel, .stat-num,
+.btn, .pillbtn,
+.cbi-section > h3,
+.login-title,
+.header-title {
+  font-family: var(--font-display);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button { font: inherit; }
+
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+hr {
+  border: none;
+  border-top: var(--stroke-thin) dashed var(--ink);
+  margin: var(--space-md) 0;
+}
+
+p {
+  margin-bottom: var(--space-sm);
+}
+
+ul, ol {
+  padding-left: 1.5em;
+  margin: var(--space-sm) 0;
+}
+
+li {
+  margin-bottom: 2px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: 1.125rem; }
+h4 { font-size: 1rem; }
+
+::selection {
+  background: var(--butter);
+  color: var(--on-pastel);
+}
+
+svg.icon, .nav-icon, .indicator-icon {
+  flex-shrink: 0;
+}
+
+/* LuCI injects <input type="submit" class="hidden"> at the top of every
+   CBI form. Hide it. */
+.hidden {
+  display: none;
+}

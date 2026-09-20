@@ -1,0 +1,4 @@
+config global 'global'
+	option primary '#ff8fac'
+	option status_bar '1'
+	option font_size '14'

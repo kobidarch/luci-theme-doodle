@@ -1,0 +1,864 @@
+/* ==========================================================================
+   Components — Doodle CBI forms, tables, buttons, inputs
+   No translucency, no blur. Paper + ink + hard shadows + pastel accents.
+   ========================================================================== */
+
+/* ---- CBI Sections (demo .card) ---- */
+.cbi-section {
+  .doodle-card();
+  padding: 0;
+  margin-bottom: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+
+  &:has(.cbi-dropdown[open]) {
+    z-index: var(--z-dropdown);
+  }
+
+  /* Nested sections — flatten */
+  .cbi-section {
+    padding: 0;
+    margin-bottom: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
+.cbi-section > .cbi-section-node,
+.cbi-section > div:not(h3):not(.cbi-section-descr) {
+  padding: 0 var(--space-xl);
+}
+
+.cbi-section > div:last-child {
+  padding-bottom: var(--space-xl);
+}
+
+.cbi-section-descr {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 var(--space-xl) var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1.5px dashed rgba(43,35,32,0.25);
+}
+
+.cbi-section > h3,
+.cbi-section-node > h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  margin: 0 0 var(--space-md);
+  padding: 10px 16px;
+  background: var(--butter);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+
+/* Cycle pastel section headers */
+.cbi-section:nth-of-type(3n+2) > h3 { background: var(--mint); }
+.cbi-section:nth-of-type(3n+3) > h3 { background: var(--sky); }
+
+/* Head strips sit flush against the card top. Without this, the generic
+   view-h3 rule (higher specificity) leaves a paper gap above the strip,
+   making headers look half-filled/floating. */
+#view .cbi-section > h3,
+#view .cbi-section-node > h3,
+#view .cbi-section > .cbi-title > h3,
+#maincontent .cbi-section > h3,
+#maincontent .cbi-section-node > h3,
+#maincontent .cbi-section > .cbi-title > h3 {
+  margin-top: 0;
+}
+
+/* Sub-headings inside section bodies (e.g. DHCP lease table titles) —
+   doodle badge: smaller than the full-width section strips, one level down
+   in the hierarchy. Scoped away from alert titles. */
+.cbi-section-node h4,
+.cbi-value > h4 {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  background: var(--mint);
+  color: var(--on-pastel);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  box-shadow: var(--shadow-sm);
+  margin: var(--space-md) 0;
+}
+
+/* ---- Section fold/collapse ---- */
+.cbi-section.fade-in .cbi-title {
+  display: flex;
+  align-items: center;
+  background: var(--butter);
+  border-bottom: var(--stroke) solid var(--ink);
+  padding: 6px 12px 6px 16px;
+
+  > h3 {
+    flex: 1;
+    margin-bottom: 0;
+    background: none;
+    border: none;
+    padding: 4px 0;
+  }
+
+  > div:last-child {
+    flex-shrink: 0;
+    margin-left: var(--space-md);
+  }
+
+  > div:last-child span {
+    font-size: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    transition: transform .12s ease;
+
+    &:hover {
+      transform: translate(-1px,-1px);
+      box-shadow: 2px 2px 0 var(--shadow-col);
+    }
+
+    &::after {
+      content: '';
+      display: block;
+      width: 7px;
+      height: 7px;
+      border-right: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      transform: rotate(-135deg);
+      transition: transform 0.2s ease;
+      margin-top: 3px;
+    }
+
+    &[data-style="inactive"]::after {
+      transform: rotate(45deg);
+      margin-top: -2px;
+    }
+  }
+}
+
+/* ---- CBI Map ---- */
+.cbi-map {
+  margin-bottom: var(--space-xl);
+}
+
+/* Overview status includes — title row lives in .cbi-title (no .fade-in).
+   Same doodle head strip as section h3, plus pastel cycling.
+   Scoped to non-.fade-in: .fade-in sections already paint the .cbi-title
+   container butter, so a second strip on the h3 would double-frame. */
+.cbi-section:not(.fade-in) > .cbi-title > h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--butter);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+
+.cbi-section:not(.fade-in):nth-of-type(3n+2) > .cbi-title > h3 { background: var(--mint); }
+.cbi-section:not(.fade-in):nth-of-type(3n+3) > .cbi-title > h3 { background: var(--sky); }
+
+/* Hide/Show toggle pill (overview status includes) */
+.cbi-section > .cbi-title > h3 > .label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 3px 12px;
+  min-width: 4em;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--shadow-col);
+  transition: transform .1s ease;
+}
+
+.cbi-section > .cbi-title > h3 > .label:hover {
+  transform: translate(-1px, -1px);
+}
+
+.cbi-section > .cbi-title > h3 > .label[data-style="active"] {
+  background: var(--pink);
+  color: var(--on-pastel);
+}
+
+.cbi-map-descr,
+.cbi-map > h2,
+#view > h2,
+#maincontent > h2 {
+  display: none;
+}
+
+.cbi-map-descr[data-moved],
+#view > h2 + [data-moved] {
+  display: none;
+}
+
+/* Page head injected by JS? Style standalone h2 like demo page-head */
+#maincontent > h2,
+#view > h2 {
+  font-size: 1.9rem;
+  margin: 0 0 4px;
+}
+
+/* ---- CBI Value rows (demo .kv) ---- */
+.cbi-value {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 0;
+  margin: 0 var(--space-xl);
+  border-bottom: 1.5px dashed rgba(43,35,32,0.18);
+  gap: 10px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:has(> .cbi-section),
+  &:has(> table) {
+    display: block;
+  }
+}
+
+.cbi-value-title {
+  flex: 0 0 200px;
+  padding-right: var(--space-xl);
+  padding-top: var(--space-sm);
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+}
+
+.cbi-value-description {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  margin-top: var(--space-xs);
+  font-weight: 600;
+}
+
+.cbi-value-field {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+/* ---- Inputs (demo .field) ---- */
+.cbi-input-text,
+.cbi-input-password,
+input[type="text"],
+input[type="password"],
+input[type="number"],
+textarea {
+  .doodle-input();
+  max-width: 400px;
+}
+
+textarea {
+  max-width: 100%;
+  min-height: 80px;
+  resize: vertical;
+}
+
+select {
+  .doodle-input();
+  width: auto;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+/* ---- Buttons (demo .btn) ---- */
+.btn,
+.cbi-button {
+  .doodle-btn();
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  gap: 6px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+.cbi-button-positive,
+.cbi-button-apply,
+.cbi-button-action,
+.cbi-button-reload,
+.cbi-button[value="Submit"],
+.cbi-button[value="Upload"],
+.cbi-button[value$="Apply"] {
+  background: var(--sky);
+  color: var(--on-pastel);
+}
+
+.cbi-button-save {
+  background: var(--mint);
+  color: var(--on-pastel);
+}
+
+.cbi-button-negative,
+.cbi-button-remove,
+.cbi-button-reset {
+  background: var(--coral);
+  color: var(--on-pastel);
+}
+
+/* Danger buttons rendered as plain .btn (e.g. repokeys delete modal) */
+.btn.danger,
+.cbi-button.danger {
+  background: var(--coral);
+  color: var(--on-pastel);
+}
+
+.cbi-button-neutral,
+.cbi-button-link,
+.cbi-button-edit,
+.cbi-button-find,
+.cbi-button-add,
+.cbi-button-download,
+.cbi-button-up,
+.cbi-button-down {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Extra pastel mapping for common actions */
+.cbi-button-add { background: var(--butter); color: var(--on-pastel); }
+.cbi-button-edit { background: var(--lav); color: var(--on-pastel); }
+
+.cbi-page-actions {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md) var(--space-xl);
+  margin-top: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* ---- Tables (demo .doodle table) ---- */
+.table,
+table.cbi-section-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+
+  thead tr,
+  .tr.table-titles,
+  .tr.cbi-section-table-titles {
+    th, .th {
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 800;
+      font-family: var(--font-display);
+      background: var(--butter);
+      color: var(--on-pastel);
+      border-bottom: var(--stroke) solid var(--ink);
+      white-space: nowrap;
+    }
+  }
+
+  tbody tr,
+  .tr {
+    td, .td {
+      padding: 9px 12px;
+      border-bottom: 1.5px dashed rgba(43,35,32,0.2);
+      background: var(--paper);
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+
+    &:last-child td,
+    &:last-child .td {
+      border-bottom: none;
+    }
+
+    td:last-child:has(.cbi-button),
+    .td:last-child:has(.cbi-button) {
+      text-align: right;
+      white-space: nowrap;
+
+      .cbi-button {
+        min-width: 6rem;
+        text-align: center;
+      }
+    }
+
+    &:hover td,
+    &:hover .td {
+      background: var(--paper-2);
+    }
+  }
+}
+
+/* Table wrapper inside cards — the card provides the frame, so the table
+   itself stays flat (no double borders / poking corners). Tables with an
+   inline width (e.g. realtime legend) keep auto width to avoid overflow. */
+.cbi-section > .table,
+.cbi-section > table.cbi-section-table {
+  margin: 0 var(--space-xl) var(--space-lg);
+  width: calc(100% - var(--space-xl) * 2);
+  border-radius: 0;
+}
+
+.cbi-section > .table[style*="width"],
+.cbi-section > table.cbi-section-table[style*="width"] {
+  width: auto;
+}
+
+/* thead-less tables (e.g. realtime legend) get a top frame */
+.table:not(:has(thead)):not(:has(.tr.table-titles)):not(:has(.tr.cbi-section-table-titles)) {
+  border-top: var(--stroke-thin) solid var(--ink);
+}
+
+/* Tables whose body has an actions column but whose header doesn't
+   (e.g. repokeys TableSection): stretch the butter header strip over it */
+.table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions)) thead tr::after {
+  content: '';
+  display: table-cell;
+  background: var(--butter);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+
+/* ---- CBI Dynamic List ---- */
+.cbi-dynlist {
+  line-height: 1.3;
+  flex-direction: column;
+  min-height: 30px;
+  cursor: text;
+  gap: 10px;
+
+  > .item {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    position: relative;
+    max-width: 25rem;
+    pointer-events: none;
+    color: var(--ink);
+    outline: 0;
+
+    &::after {
+      content: "\00D7";
+      pointer-events: auto;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem !important;
+      height: 2.5rem;
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.5rem;
+      color: var(--on-pastel);
+      border: var(--stroke-thin) solid var(--ink);
+      border-left: none;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: var(--coral);
+      box-sizing: border-box;
+    }
+
+    > span {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      box-sizing: border-box;
+      min-width: 15.5rem;
+      width: 15.5rem;
+      height: 2.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.5em;
+      color: var(--ink);
+      border: var(--stroke-thin) solid var(--ink);
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+      border-right: none;
+      background: var(--paper-2);
+    }
+  }
+
+  > .add-item {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    min-width: 15.5rem;
+    flex-wrap: nowrap;
+    gap: 10px;
+
+    input {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      box-sizing: border-box;
+      min-width: 15.5rem;
+      width: 15.5rem;
+      font-size: 0.85rem;
+      line-height: 1.5rem;
+      color: var(--ink);
+      border: var(--stroke-thin) solid var(--ink);
+      border-radius: var(--radius-sm);
+      background: var(--paper-2);
+    }
+
+    .cbi-button-add {
+      width: 2.5rem !important;
+      padding: 0.5rem 0 !important;
+      font-size: 1.2rem;
+      color: var(--on-pastel);
+      background: var(--mint);
+      border: var(--stroke-thin) solid var(--ink);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+}
+
+/* ---- CBI Dropdown (doodle) ---- */
+.cbi-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 150px;
+  cursor: pointer;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+
+  > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    > li {
+      display: none;
+      padding: 6px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      &[display] { display: flex; align-items: center; }
+      &[placeholder]:not([display]) { display: none; }
+      &[placeholder][display] {
+        color: var(--ink-soft);
+        font-style: italic;
+      }
+    }
+  }
+
+  &[open] {
+    position: relative;
+    z-index: var(--z-modal);
+    box-shadow: var(--shadow-md);
+  }
+
+  &[open] > ul.dropdown {
+    position: absolute;
+    z-index: var(--z-modal);
+    min-width: 100%;
+    max-height: 250px !important;
+    overflow-y: auto;
+    display: block;
+    border-radius: var(--radius-md);
+    padding: 6px;
+    color: var(--ink);
+    background: var(--paper);
+    border: var(--stroke) solid var(--ink);
+    box-shadow: var(--shadow-lg);
+
+    > li {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .1s ease;
+      &:hover { background: var(--paper-2); border: 2px solid var(--ink); }
+      &[selected] {
+        background: var(--lav);
+        color: var(--on-pastel);
+        font-weight: 700;
+        border: 2px solid var(--ink);
+      }
+    }
+  }
+
+  &[open] > ul.preview { display: flex; }
+  > div { display: none; }
+}
+
+/* ---- Tabs (demo swatch pills) ---- */
+.cbi-tabmenu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 0 var(--space-xl) var(--space-xl);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+
+  li {
+    a {
+      display: block;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      border: 2.5px solid transparent;
+      text-decoration: none;
+      &:hover {
+        background: var(--paper);
+        border-color: var(--ink);
+      }
+    }
+
+    &.cbi-tab a {
+      background: var(--lav);
+      color: var(--on-pastel);
+      border-color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+}
+
+[data-tab][data-tab-title]:not([data-tab-active="true"]) {
+  display: none;
+}
+
+/* ---- Alerts (demo .blob) ---- */
+.alert-message,
+.cbi-section-error {
+  padding: 14px 16px;
+  border-radius: 26px 10px 26px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 var(--space-xl) var(--space-lg);
+  color: var(--on-pastel);
+  background: var(--sky);
+  border: var(--stroke) solid var(--ink);
+  box-shadow: var(--shadow-lg);
+
+  > h4, > .title, > strong:first-child {
+    font-family: var(--font-display);
+    margin-bottom: 6px;
+  }
+}
+
+.alert-message.notice,
+.alert-message.info {
+  background: var(--sky);
+}
+
+.alert-message.warning {
+  background: var(--butter);
+}
+
+.alert-message.error,
+.cbi-section-error {
+  background: var(--coral);
+}
+
+.alert-message.success {
+  background: var(--mint);
+}
+
+/* Standalone alerts (password warning, noscript) */
+#maincontent > .alert-message {
+  margin: 0 0 var(--space-lg);
+}
+
+/* ---- Progress bars (demo .bar-track) ---- */
+.cbi-progressbar {
+  position: relative;
+  height: 14px;
+  background: var(--paper-2);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+
+  > div {
+    height: 100%;
+    border-right: var(--stroke-thin) solid var(--ink);
+    transition: width var(--transition-normal);
+    background: var(--sky-deep);
+  }
+
+  &::after {
+    content: attr(title);
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--ink);
+  }
+}
+
+/* ---- Checkbox & Radio ---- */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--pink-deep);
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* ---- Modal (demo .placeholder) ---- */
+#modal_overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(43,35,32,0.35);
+  z-index: var(--z-modal);
+
+  > .modal {
+    background: var(--paper);
+    border: var(--stroke) solid var(--ink);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-2xl);
+    max-width: 600px;
+    min-width: 270px;
+    width: calc(100% - var(--space-2xl) * 2);
+    max-height: calc(100vh - 4em);
+    overflow-y: auto;
+    z-index: calc(var(--z-modal) + 1);
+
+    > .cbi-section,
+    > form > .cbi-section,
+    > .cbi-map > .cbi-section {
+      box-shadow: none;
+      margin: 0 0 var(--space-lg);
+    }
+
+    &:has(.cbi-dropdown[open]) {
+      overflow: visible;
+    }
+  }
+
+  > .modal.cbi-modal,
+  > .modal.uci-dialog {
+    max-width: 900px;
+  }
+}
+
+body.modal-overlay-active #modal_overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* UCI Changes dialog */
+.uci-dialog .cbi-section {
+  box-shadow: none;
+}
+.uci-change-legend {
+  padding: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.uci-change-legend-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  > ins, > del, > var {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 6px;
+    margin-right: 6px;
+    border: 2px solid var(--ink);
+    text-indent: -9999px;
+    overflow: hidden;
+  }
+
+  > ins { background: var(--mint); }
+  > del { background: var(--coral); }
+  > var { background: var(--sky); }
+}
+
+.uci-change-list {
+  font-family: inherit;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+
+  ins, del, var {
+    display: block;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-style: normal;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: var(--stroke-thin) solid var(--ink);
+  }
+
+  ins { background: var(--mint); color: var(--on-pastel); }
+  del { background: var(--coral); color: var(--on-pastel); }
+  var { background: var(--sky); color: var(--on-pastel); }
+
+  var ins, var del {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    color: inherit;
+  }
+}
+
+.uci-change-list + .right,
+.uci-dialog .right {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}

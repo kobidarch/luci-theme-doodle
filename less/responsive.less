@@ -1,0 +1,109 @@
+/* ==========================================================================
+   Responsive — doodle mobile (matches demo 880px breakpoint)
+   ========================================================================== */
+
+/* Tablet: sidebar becomes drawer */
+@media (max-width: 1024px) {
+  #sidebar {
+    top: var(--header-height);
+    bottom: 0;
+    transform: translateX(-105%);
+    transition: transform .22s ease;
+    z-index: 46;
+    width: 250px;
+    box-shadow: var(--shadow-lg);
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  #header {
+    left: 0;
+    right: 0;
+  }
+
+  #header-sub {
+    left: 0;
+  }
+
+  #content-wrap {
+    margin-left: 0;
+  }
+
+  .doodle-footer {
+    margin-left: 0;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+
+  .sidebar-overlay.active {
+    display: block;
+  }
+}
+
+/* Match demo: collapse grids at 880px */
+@media (max-width: 880px) {
+  #status-indicators {
+    display: none !important;
+  }
+}
+
+/* Mobile: tighter spacing */
+@media (max-width: 640px) {
+  :root {
+    --content-padding: 14px;
+  }
+
+  #header {
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 8px;
+  }
+
+  .header-title { display: none; }
+
+  #content-wrap {
+    padding: 18px 14px 50px;
+  }
+
+  .cbi-value {
+    flex-direction: column;
+  }
+
+  .cbi-value-title {
+    flex: none;
+    padding-right: 0;
+    padding-bottom: var(--space-xs);
+  }
+
+  .cbi-page-actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    .cbi-button {
+      width: 100%;
+    }
+  }
+
+  .login-card {
+    padding: 30px 20px;
+  }
+
+  .cbi-tabmenu {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+
+    li a {
+      white-space: nowrap;
+    }
+  }
+
+  table.cbi-section-table,
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+}

@@ -1,0 +1,117 @@
+/* ==========================================================================
+   Design Tokens — luci-theme-doodle
+   Pastel doodle system. No glassmorphism: opaque paper, thick ink
+   borders, hard offset shadows. Layout IDs kept compatible with LuCI.
+   ========================================================================== */
+
+:root {
+  /* ---- Typography (from demo) ---- */
+  --font-display: 'Baloo 2', ui-rounded, 'Segoe UI', sans-serif;
+  --font-sans: 'Nunito', 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-size-base: 0.875rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.75rem;
+  --line-height: 1.5;
+  --font-weight-normal: 400;
+  --font-weight-medium: 600;
+  --font-weight-semibold: 700;
+  --font-weight-bold: 800;
+
+  /* ---- Doodle ink / paper ---- */
+  --ink: #2b2320;
+  --ink-soft: #6b5f56;
+  --bg: #fdf6ee;
+  --paper: #fffdf9;
+  --paper-2: #fff9f0;
+  --on-pastel: #2b2320;
+
+  /* ---- Pastel palette (from demo) ---- */
+  --pink: #ffc9d9;
+  --pink-deep: #ff8fac;
+  --mint: #bdead9;
+  --mint-deep: #63c9a0;
+  --sky: #b6e2f7;
+  --sky-deep: #63b8e0;
+  --butter: #ffe6a0;
+  --butter-deep: #ffc94d;
+  --lav: #ddccfb;
+  --lav-deep: #b28bf0;
+  --peach: #ffd7ba;
+  --peach-deep: #ff9f5b;
+  --coral: #ffb2a6;
+  --coral-deep: #ff7a63;
+
+  /* ---- Mapped LuCI tokens (no glass) ---- */
+  --color-primary: #ff8fac;
+  --color-primary-hover: #f06f95;
+  --color-primary-active: #d14f78;
+  --color-primary-rgb: 255, 143, 172;
+
+  --color-success: #63c9a0;
+  --color-warning: #ffc94d;
+  --color-danger: #ff7a63;
+  --color-info: #63b8e0;
+
+  --color-text: #2b2320;
+  --color-text-secondary: #6b5f56;
+  --color-text-tertiary: #a89a90;
+
+  --color-bg: #fdf6ee;
+  --color-bg-elevated: #fffdf9;
+  --color-bg-secondary: #fff9f0;
+
+  --color-border: #2b2320;
+  --color-border-strong: #2b2320;
+  --color-separator: rgba(43, 35, 32, 0.15);
+
+  /* ---- Doodle stroke / shadow / radius ---- */
+  --stroke: 3px;
+  --stroke-thin: 2.5px;
+  --shadow-col: #2b2320;
+  --shadow-sm: 3px 3px 0 var(--shadow-col);
+  --shadow-md: 4px 4px 0 var(--shadow-col);
+  --shadow-lg: 5px 5px 0 var(--shadow-col);
+  --shadow-xl: 6px 6px 0 var(--shadow-col);
+
+  /* ---- Layout (doodle shell: full-width 64px topbar + 250px sidebar) ---- */
+  --sidebar-width: 250px;
+  --header-height: 64px;
+  --subnav-height: 48px;
+  --content-max-width: none;
+  --content-padding: 26px;
+
+  /* ---- Radius (from demo) ---- */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 22px;
+  --radius-full: 999px;
+
+  /* ---- Spacing ---- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+
+  /* ---- Transitions ---- */
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.22s ease;
+  --transition-slow: 0.22s ease;
+
+  /* ---- Z-index ---- */
+  --z-dropdown: 100;
+  --z-sidebar: 300;
+  --z-header: 400;
+  --z-overlay: 500;
+  --z-modal: 600;
+  --z-toast: 700;
+
+  /* ---- Dotted paper background ---- */
+  --bg-dots: radial-gradient(circle at 8px 8px, rgba(0,0,0,0.035) 1.5px, transparent 1.6px);
+}

@@ -1,0 +1,135 @@
+{# luci-theme-doodle — Main page footer template (light only) #}
+{%
+  import { readfile, access } from 'fs';
+  import { cursor } from 'uci';
+  const doodle_version = trim(readfile('/usr/share/ucode/luci/template/themes/doodle/version')) ?? '?';
+  let doodle_status_bar = '1';
+  let _cfg = cursor();
+  if (access('/etc/config/doodle')) {
+    doodle_status_bar = _cfg.get_first('doodle', 'global', 'status_bar') ?? '1';
+  }
+%}
+{% if (!blank_page): %}
+    </div>
+  </div>
+</main>
+
+<footer class="doodle-footer">
+  <span>DoodleTheme v{{ doodle_version }}</span>
+  <span class="footer-sep">|</span>
+  <a href="https://github.com/openwrt/luci" target="_blank">{{ version.luciname }} ({{ version.luciversion }})</a>
+  <span class="footer-sep">|</span>
+  <a href="{{ version.disturl }}" target="_blank">{{ version.distname }} {{ version.distversion }}</a>
+</footer>
+
+<script src="{{ resource }}/luci.js"></script>
+<script>
+  L.require('menu-doodle');
+{% if (doodle_status_bar == '1'): %}
+  L.require('status-doodle');
+{% endif %}
+
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+
+  (function() {
+    var toggle = document.getElementById('menu-toggle');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebar-overlay');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+
+    if (toggle) toggle.addEventListener('click', function() {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+  })();
+
+  /* Move CBI tabmenus into sub-nav bar; attach descriptions as tooltips */
+  (function() {
+    var headerSub = document.getElementById('header-sub');
+    var headerTitle = document.getElementById('header-title');
+    var content = document.getElementById('maincontent');
+    if (!content) return;
+
+    function processContent() {
+      /* Attach page description as tooltip on header title */
+      if (headerTitle && !headerTitle.title) {
+        var descr = content.querySelector('.cbi-map-descr');
+        if (descr && !descr.dataset.moved) {
+          descr.dataset.moved = '1';
+          headerTitle.title = descr.textContent.trim();
+        }
+      }
+
+      /* Move top-level CBI tabmenus into sub-nav bar.
+         Skip if renderTabMenu already populated header-sub (menu-tree tabs).
+         Nested tabmenus (e.g. DNS Records sub-tabs inside a tab panel)
+         stay in-content so they don't get mixed with top-level tabs. */
+      if (!headerSub) return;
+      if (headerSub.querySelector('.sub-tab')) return; /* Already has menu-tree tabs */
+      var allTabmenus = content.querySelectorAll('.cbi-tabmenu');
+      if (allTabmenus.length === 0) return;
+
+      /* Only move the first CBI tabmenu to sub-nav.
+         Any deeper tabmenus (e.g. DNS Records sub-tabs, dnsmasq section tabs)
+         stay in-content with doodle styling. */
+      var topTabmenus = [allTabmenus[0]];
+      if (!topTabmenus[0]) return;
+
+      /* Skip rebuild if we're in the middle of a tab click */
+      if (headerSub._switching) return;
+
+      /* Clear existing sub-tabs to prevent duplicates on re-render (Save & Apply) */
+      headerSub.innerHTML = '';
+      headerSub.classList.remove('active');
+      document.body.classList.remove('has-sub-nav');
+
+      topTabmenus.forEach(function(ul) {
+        var items = ul.querySelectorAll('li');
+        items.forEach(function(li) {
+          var a = li.querySelector('a');
+          if (!a) return;
+          /* Skip hidden tabs (e.g. DNSSEC when not available) */
+          if (li.style.display === 'none') return;
+          var tab = a.cloneNode(true);
+          tab.className = 'sub-tab' + (li.classList.contains('cbi-tab') ? ' active' : '');
+          tab.addEventListener('click', function(ev) {
+            ev.preventDefault();
+            /* Guard: prevent MutationObserver from rebuilding during tab switch */
+            headerSub._switching = true;
+            a.click();
+            setTimeout(function() { headerSub._switching = false; }, 100);
+            headerSub.querySelectorAll('.sub-tab').forEach(function(t) {
+              t.classList.remove('active');
+            });
+            tab.classList.add('active');
+          });
+          headerSub.appendChild(tab);
+        });
+
+        ul.style.display = 'none';
+      });
+
+      headerSub.classList.add('active');
+      document.body.classList.add('has-sub-nav');
+    }
+
+    processContent();
+    new MutationObserver(function() {
+      processContent();
+    }).observe(content, { childList: true, subtree: true });
+  })();
+</script>
+{% endif %}
+{% if (js): %}<script>{{ js }}</script>{% endif %}
+</body>
+</html>
