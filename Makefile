@@ -6,7 +6,7 @@
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=Doodle - Pastel doodle theme for LuCI (opaque, ink borders, hard shadows)
+LUCI_TITLE:=Doodle - Pastel doodle theme for LuCI
 LUCI_DEPENDS:=
 PKG_VERSION:=$(shell cat $(CURDIR)/ucode/template/themes/doodle/version | tr -d '[:space:]')
 PKG_RELEASE:=1
