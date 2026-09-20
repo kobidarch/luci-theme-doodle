@@ -21,7 +21,8 @@ borders, hard offset shadows, and a candy palette.
   butter `#ffe6a0`, lavender `#ddccfb`, peach `#ffd7ba`, coral `#ffb2a6`
 - **Doodle type** — [Baloo 2](https://fonts.google.com/specimen/Baloo+2)
   for headings and buttons, [Nunito](https://fonts.google.com/specimen/Nunito)
-  for body (Google Fonts with system fallback, works offline too)
+  for body, self-hosted as variable webfonts (latin subset, ~70KB total)
+  with system fallback — no CDN, works fully offline
 - **Doodle controls** — pastel buttons that lift on hover and press in on
   click, ink-bordered inputs with hard-shadow focus, butter table headers,
   blob-shaped alerts, pill badges and toggles
@@ -173,6 +174,7 @@ luci-theme-doodle/
 │   ├── doodle/
 │   │   ├── css/                          # Compiled CSS
 │   │   ├── img/                          # doodle-logo.svg
+│   │   ├── fonts/                        # Self-hosted Baloo 2 + Nunito woff2
 │   │   └── background/                   # User wallpapers (bg.jpg, …)
 │   └── resources/
 │       ├── menu-doodle.js                # Sidebar / header / tab renderer
@@ -180,6 +182,7 @@ luci-theme-doodle/
 │       └── view/system/doodle.js         # Theme config page
 ├── less/                                 # LESS sources (pure doodle)
 │   ├── cascade.less                      # Master import
+│   ├── fonts.less                        # Self-hosted @font-face
 │   ├── variables.less                    # Pastel tokens, ink, radii, type
 │   ├── normalize.less                    # Reset + fonts
 │   ├── doodle.less                       # Mixins: cards, buttons, inputs

@@ -16,9 +16,6 @@
   <meta name="theme-color" content="#fdf6ee">
   <title>{{ _('Login') }} - {{ hostname }} - LuCI</title>
   <link rel="icon" href="{{ media }}/img/doodle-logo.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ media }}/css/cascade.css">
 </head>
 <body class="lang_{{ dispatcher.lang }}">

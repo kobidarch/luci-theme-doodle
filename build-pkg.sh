@@ -33,6 +33,7 @@ mkdir -p "$DATA_DIR/etc/apk/keys"
 
 cp -r htdocs/luci-static/doodle/css "$DATA_DIR/www/luci-static/doodle/"
 cp -r htdocs/luci-static/doodle/img "$DATA_DIR/www/luci-static/doodle/"
+cp -r htdocs/luci-static/doodle/fonts "$DATA_DIR/www/luci-static/doodle/"
 mkdir -p "$DATA_DIR/www/luci-static/doodle/background"
 cp htdocs/luci-static/resources/menu-doodle.js "$DATA_DIR/www/luci-static/resources/"
 cp htdocs/luci-static/resources/status-doodle.js "$DATA_DIR/www/luci-static/resources/"
