@@ -9,7 +9,7 @@
     bottom: 0;
     transform: translateX(-105%);
     transition: transform .22s ease;
-    z-index: 46;
+    /* keep --z-sidebar (300): must stay above .sidebar-overlay (299) */
     width: 250px;
     box-shadow: var(--shadow-lg);
 
@@ -25,6 +25,8 @@
 
   #header-sub {
     left: 0;
+    /* below overlay (299) + drawer (300): never cover the open menu */
+    z-index: calc(var(--z-sidebar) - 2);
   }
 
   #content-wrap {
@@ -86,6 +88,44 @@
     .cbi-button {
       width: 100%;
     }
+  }
+
+  /* Cards become horizontal scrollers so wide tables (realtime legends
+     with inline widths) slide instead of clipping. Dropdown/tooltip
+     escapes elsewhere still take precedence when open. */
+  .cbi-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Legend tables size to content instead of squeezing fixed columns. */
+  .cbi-section > .table[style*="width"],
+  .cbi-section > table.cbi-section-table[style*="width"] {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+  }
+
+  .cbi-section > .table[style*="width"] td,
+  .cbi-section > .table[style*="width"] .td,
+  .cbi-section > table.cbi-section-table[style*="width"] td {
+    white-space: nowrap;
+  }
+
+  /* Action button cells: wrap the buttons instead of clipping them
+     off the card edge (base forces nowrap + fixed widths). */
+  .table .tr td:last-child:has(.cbi-button),
+  .table .tr .td:last-child:has(.cbi-button),
+  table.cbi-section-table tbody tr td:last-child:has(.cbi-button) {
+    white-space: normal;
+  }
+
+  .table .tr td:last-child:has(.cbi-button) .cbi-button,
+  .table .tr .td:last-child:has(.cbi-button) .cbi-button,
+  table.cbi-section-table tbody tr td:last-child:has(.cbi-button) .cbi-button {
+    min-width: 0;
+    width: auto;
+    margin: 0 6px 6px 0;
   }
 
   .login-card {
