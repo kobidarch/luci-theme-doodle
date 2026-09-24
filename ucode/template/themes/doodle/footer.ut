@@ -4,9 +4,11 @@
   import { cursor } from 'uci';
   const doodle_version = trim(readfile('/usr/share/ucode/luci/template/themes/doodle/version')) ?? '?';
   let doodle_status_bar = '1';
+  let doodle_speed_unit = 'bits';
   let _cfg = cursor();
   if (access('/etc/config/doodle')) {
     doodle_status_bar = _cfg.get_first('doodle', 'global', 'status_bar') ?? '1';
+    doodle_speed_unit = _cfg.get_first('doodle', 'global', 'speed_unit') ?? 'bits';
   }
 %}
 {% if (!blank_page): %}
@@ -24,6 +26,7 @@
 
 <script src="{{ resource }}/luci.js"></script>
 <script>
+  window.doodle_speed_unit = '{{ doodle_speed_unit }}';
   L.require('menu-doodle');
 {% if (doodle_status_bar == '1'): %}
   L.require('status-doodle');

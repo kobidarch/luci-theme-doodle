@@ -109,6 +109,22 @@ msgstr ""
 msgid "General"
 msgstr ""
 
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Speed unit"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Display live network throughput in bits per second or bytes per second."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Bits (Mbps)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Bytes (MB/s)"
+msgstr ""
+
 #: ucode/template/themes/doodle/header.ut
 msgid "There is no password set on this router. Please configure a root password to protect the web interface."
 msgstr ""
