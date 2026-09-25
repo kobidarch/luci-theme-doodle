@@ -41,6 +41,12 @@ return view.extend({
 		o.value('18', _('Extra Large (18px)'));
 		o.default = '14';
 
+		o = s.option(form.ListValue, 'speed_unit', _('Speed unit'),
+			_('Display live network throughput in bits per second or bytes per second.'));
+		o.value('bits', _('Bits (Mbps)'));
+		o.value('bytes', _('Bytes (MB/s)'));
+		o.default = 'bits';
+
 		/* ── Colors ── */
 		s = m.section(form.NamedSection, 'global', 'global', _('Accent Colors'));
 		s.anonymous = true;

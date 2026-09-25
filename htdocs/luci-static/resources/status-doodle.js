@@ -28,9 +28,15 @@ return baseclass.extend({
 	netChecked: false,
 	linkSpeed: null,
 	numCores: 1,
+	speedUnit: 'bits',
 
 	__init__: function() {
 		var self = this;
+		/* Speed unit comes from footer.ut (UCI doodle.global.speed_unit). */
+		try {
+			if (window.doodle_speed_unit === 'bytes' || window.doodle_speed_unit === 'bits')
+				this.speedUnit = window.doodle_speed_unit;
+		} catch(e) {}
 		/* Detect core count once so load average can be converted to %. */
 		L.resolveDefault(fs.read('/proc/cpuinfo'), '').then(function(text) {
 			var m = text.match(/^processor\s*:/gm);
@@ -263,6 +269,13 @@ return baseclass.extend({
 	},
 
 	formatSpeed: function(bytesPerSec) {
+		if (this.speedUnit === 'bytes') {
+			if (bytesPerSec >= 1000000)
+				return (bytesPerSec / 1000000).toFixed(1) + 'MB';
+			if (bytesPerSec >= 1000)
+				return (bytesPerSec / 1000).toFixed(1) + 'KB';
+			return Math.round(bytesPerSec) + 'B';
+		}
 		var bits = bytesPerSec * 8;
 		if (bits >= 1000000000)
 			return (bits / 1000000000).toFixed(1) + 'G';
@@ -274,6 +287,13 @@ return baseclass.extend({
 	},
 
 	formatSpeedFull: function(bytesPerSec) {
+		if (this.speedUnit === 'bytes') {
+			if (bytesPerSec >= 1000000)
+				return (bytesPerSec / 1000000).toFixed(1) + ' MB/s';
+			if (bytesPerSec >= 1000)
+				return (bytesPerSec / 1000).toFixed(1) + ' KB/s';
+			return Math.round(bytesPerSec) + ' B/s';
+		}
 		var bits = bytesPerSec * 8;
 		if (bits >= 1000000000)
 			return (bits / 1000000000).toFixed(1) + ' Gbps';

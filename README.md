@@ -136,6 +136,7 @@ config global 'global'
 	option primary '#ff8fac'
 	option status_bar '1'
 	option font_size '14'
+	option speed_unit 'bits'
 ```
 
 | Option | Default | Description |
@@ -143,6 +144,7 @@ config global 'global'
 | `primary` | `#ff8fac` | Accent color for links and active elements |
 | `status_bar` | `1` | `1` shows live stats in the header, `0` hides them |
 | `font_size` | `14` | Base font size in px (`13`, `14`, `16`, `18`) |
+| `speed_unit` | `bits` | Live throughput unit (`bits` = Mbps, `bytes` = MB/s) |
 
 A **Doodle Theme Config** page is also available under
 **System** in LuCI itself.

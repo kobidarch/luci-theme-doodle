@@ -106,7 +106,7 @@ scp $THEME/root/usr/share/rpcd/acl.d/luci-theme-doodle.json \
 
 # Default config (only if you have none yet — never overwrites)
 ssh $ROUTER "test -f /etc/config/doodle || printf \
-  \"config global 'global'\n\toption primary '#ff8fac'\n\toption status_bar '1'\n\toption font_size '14'\n\" \
+  \"config global 'global'\n\toption primary '#ff8fac'\n\toption status_bar '1'\n\toption font_size '14'\n\toption speed_unit 'bits'\n\" \
   > /etc/config/doodle"
 
 # Register the theme (does NOT switch you to it)
