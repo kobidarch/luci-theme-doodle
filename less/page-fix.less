@@ -48,7 +48,8 @@
 /* First head follows the card's rounded top corners (matters now that
    .ifacebox no longer clips with overflow:hidden). */
 .ifacebox-head:first-child {
-  border-radius: calc(var(--radius-lg) - var(--stroke)) calc(var(--radius-lg) - var(--stroke)) 0 0;
+  border-radius: calc(var(--radius-lg) - var(--stroke))
+    calc(var(--radius-lg) - var(--stroke)) 0 0;
 }
 
 .ifacebox-body {
@@ -106,13 +107,21 @@
   padding: 8px 2px 0;
 }
 
-/* Port status grid */
+/* Port status grid — plain ink frames here, no hard shadows, with
+   comfortable inner padding (the section-level flatten above must
+   not win). */
 div[style*="display:grid;grid-template-columns:repeat"] {
   gap: var(--space-md) !important;
+  margin-top: var(--space-lg) !important;
   margin-bottom: var(--space-lg) !important;
 
   > .ifacebox {
+    background: var(--paper);
+    border: var(--stroke) solid var(--ink);
+    border-radius: var(--radius-lg);
+    box-shadow: none;
     margin: 0 !important;
+    min-width: 0;
     text-align: center;
 
     > .ifacebox-head {
@@ -121,7 +130,7 @@ div[style*="display:grid;grid-template-columns:repeat"] {
     }
 
     > .ifacebox-body {
-      padding: 8px;
+      padding: 10px 8px 12px;
       font-size: 0.82rem;
 
       img {
@@ -164,6 +173,26 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   }
 }
 
+/* Large status badge (interface modal Status row) — roomy mini card
+   instead of a stretched capsule, text wraps inside. */
+.ifacebadge.large {
+  border-radius: var(--radius-md);
+  align-items: flex-start;
+  text-align: left;
+  max-width: 100%;
+  line-height: 1.5;
+
+  img {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
 .zonebadge {
   display: inline-block;
   padding: 3px 10px;
@@ -178,6 +207,18 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   &[style*="background"] {
     filter: saturate(0.55) brightness(1.07);
   }
+}
+
+/* ---- Firewall zones: compact action buttons so the grid fits the
+   card without sideways scrolling at desktop widths ---- */
+[data-page^="admin-network-firewall"] .table .tr td:last-child .cbi-button.btn,
+[data-page^="admin-network-firewall"]
+  table.cbi-section-table
+  tbody
+  tr
+  td:last-child
+  .cbi-button.btn {
+  min-width: 0;
 }
 
 /* Ifaceboxes rendered inside grid table cells (Interfaces page) — flatten
@@ -206,16 +247,37 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   padding: 8px 2px 0;
 }
 
-/* Tooltips → doodle mini card */
+/* Tooltips → doodle mini card.
+   Hover info must sit on top of EVERYTHING: while a tooltip is open its
+   clipping ancestors (cards, scrollable tables, modals) release overflow
+   and the hovered card lifts above its siblings. */
 .cbi-tooltip-container {
   position: relative;
+}
+
+.cbi-section:has(> .cbi-tooltip-container:hover),
+.cbi-section:has(.cbi-section-node .cbi-tooltip-container:hover),
+.cbi-section:has(td .cbi-tooltip-container:hover),
+.table:has(.cbi-tooltip-container:hover),
+.modal:has(.cbi-tooltip-container:hover) {
+  overflow: visible;
+  z-index: var(--z-dropdown);
+}
+
+.cbi-tooltip-container:hover {
+  z-index: var(--z-toast);
 }
 
 .cbi-tooltip {
   display: none;
   position: absolute;
   z-index: var(--z-toast);
-  left: 0;
+  /* Origin model: the hovered inkbox middle is 0,0 — the overlay centers
+     on the vertical axis (x≈0) and hugs the horizontal axis (8px gap),
+     flipping below when the top has no room. footer.ut clamps it into
+     the viewport with a margin-left shift. */
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 100%;
   margin-bottom: 8px;
   background: var(--paper);
@@ -232,6 +294,15 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   &.left {
     left: auto;
     right: 0;
+    transform: none;
+  }
+
+  /* Auto-placement (footer.ut flips this in when the default
+     above position would leave the viewport). */
+  &.below {
+    top: 100%;
+    bottom: auto;
+    margin: 8px 0 0;
   }
 }
 
@@ -349,8 +420,11 @@ progress {
 
 #cbi_apply_overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(43,35,32,0.35);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(43, 35, 32, 0.35);
   z-index: var(--z-overlay);
   display: flex;
   align-items: center;
@@ -372,15 +446,27 @@ progress {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Utilities */
-.nowrap { white-space: nowrap; }
-.left { text-align: left; }
-.center { text-align: center; }
-.right { text-align: right; }
+.nowrap {
+  white-space: nowrap;
+}
+.left {
+  text-align: left;
+}
+.center {
+  text-align: center;
+}
+.right {
+  text-align: right;
+}
 
 .hide-xs {
   @media (max-width: 640px) {
@@ -432,11 +518,21 @@ progress {
     align-items: flex-end !important;
   }
 
-  .controls > div:first-child { flex: 1 1 100% !important; }
-  .controls > div:nth-child(2) { flex: 1 1 200px !important; }
-  .controls > div:nth-child(3) { flex: 1 1 280px !important; }
-  .controls > div:nth-child(4) { flex: 1 1 100% !important; }
-  .controls > div:nth-child(5) { flex: 1 1 100% !important; }
+  .controls > div:first-child {
+    flex: 1 1 100% !important;
+  }
+  .controls > div:nth-child(2) {
+    flex: 1 1 200px !important;
+  }
+  .controls > div:nth-child(3) {
+    flex: 1 1 280px !important;
+  }
+  .controls > div:nth-child(4) {
+    flex: 1 1 100% !important;
+  }
+  .controls > div:nth-child(5) {
+    flex: 1 1 100% !important;
+  }
 
   .controls > div > label {
     flex-basis: 100% !important;
@@ -485,4 +581,309 @@ progress {
   > .cbi-section-node {
     padding: 0 var(--space-xl);
   }
+}
+
+/* ==========================================================================
+   Orphan-view fixes — views that render tables/forms without .cbi-section
+   (footer.ut wraps their bare tables in .cbi-section via JS; the rules
+   below dress the remaining custom structures as doodle cards)
+   ========================================================================== */
+
+/* ---- Firewall nftables: .nft-table → doodle card with strip header ---- */
+.nft-table {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+
+  > h3 {
+    display: flex;
+    align-items: center;
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0;
+    padding: 10px 16px;
+    background: var(--butter);
+    color: var(--on-pastel);
+    border-bottom: var(--stroke) solid var(--ink);
+  }
+
+  &:nth-of-type(3n + 2) > h3 {
+    background: var(--mint);
+  }
+  &:nth-of-type(3n + 3) > h3 {
+    background: var(--sky);
+  }
+}
+
+.nft-chain {
+  padding: var(--space-md) var(--space-xl) var(--space-xl);
+
+  + .nft-chain {
+    border-top: var(--stroke-thin) dashed var(--ink);
+  }
+
+  > h4 {
+    display: inline-block;
+    font-size: 0.95rem;
+    font-weight: 800;
+    background: var(--mint);
+    color: var(--on-pastel);
+    border: var(--stroke-thin) solid var(--ink);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    box-shadow: var(--shadow-sm);
+    margin: var(--space-sm) 0 var(--space-md);
+  }
+}
+
+.nft-chain-hook {
+  margin-bottom: var(--space-md);
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding: 3px 0;
+    margin: 0;
+  }
+}
+
+/* Rule tables live inside the .nft-table card: flat, inset, no double frame */
+.nft-table table.nft-rules {
+  margin: 0 0 var(--space-md);
+  width: 100%;
+}
+
+/* Wide tables (diagnostics address row…) scroll inside the card instead
+   of being sliced by the ink border. footer.ut inserts the scroller only
+   when the table actually overflows, so fitting tables keep stretching
+   full width. Corner clipping is kept by the card. */
+.cbi-section-table-wrap {
+  overflow: hidden;
+}
+
+.cbi-section-table-scroller {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  > .table,
+  > table.cbi-section-table {
+    margin: 0;
+    min-width: 100%;
+  }
+}
+
+/* ---- Startup page: tab panels + heading ---- */
+[data-page="admin-system-startup"] {
+  #maincontent > #view > div > h2 {
+    display: none;
+  }
+
+  div[data-tab] {
+    background: var(--paper);
+    border: var(--stroke) solid var(--ink);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+
+    > p:first-child {
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0 0 var(--space-lg);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1.5px dashed rgba(43, 35, 32, 0.25);
+    }
+
+    textarea {
+      max-width: 100%;
+    }
+  }
+}
+
+/* ---- DHCP page: section intros live outside the ink box ---- */
+[data-page="admin-network-dhcp"] .cbi-section-descr.dhcp-outside {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+  border: none;
+}
+
+/* ---- Diagnostics page: action buttons + output ---- */
+[data-page="admin-network-diagnostics"] {
+  .diag-action {
+    display: inline-flex;
+    gap: 8px;
+    margin-left: 8px;
+    vertical-align: middle;
+    flex-wrap: wrap;
+  }
+
+  #command-output textarea {
+    font-family: var(--font-mono);
+    min-height: 160px;
+    max-width: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+
+    &:focus {
+      background: transparent;
+      box-shadow: none;
+    }
+  }
+
+  /* Three command columns share the card evenly and shrink to fit, so
+     nothing is sliced at the ink border. Narrow screens keep the
+     sideways-scroll fallback from .cbi-section-table-wrap. */
+  @media (min-width: 901px) {
+    .cbi-section-table-wrap > .table {
+      display: table;
+      table-layout: fixed;
+      width: calc(100% - var(--space-xl) * 2);
+      margin: 0 var(--space-xl) var(--space-lg);
+      overflow: visible;
+    }
+
+    /* Address field on its own line so the action button always drops
+       below instead of squeezing past the cell edge. */
+    .cbi-section-table-wrap td > input {
+      display: block;
+    }
+
+    .cbi-section-table-wrap .cbi-dropdown {
+      min-width: 0;
+    }
+  }
+}
+
+/* ---- Software page extras: labels, pager, checkboxes, spinners ---- */
+.label {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border: 2px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--shadow-col);
+  white-space: nowrap;
+
+  &.warning {
+    background: var(--butter);
+    color: var(--on-pastel);
+  }
+  &.notice,
+  &.info {
+    background: var(--sky);
+    color: var(--on-pastel);
+  }
+  &.success {
+    background: var(--mint);
+    color: var(--on-pastel);
+  }
+  &.important,
+  &.danger,
+  &.error {
+    background: var(--coral);
+    color: var(--on-pastel);
+  }
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: var(--space-lg) 0;
+
+  .text {
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: var(--space-md) 0;
+}
+
+label.cbi-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+/* Inline loading indicator (e.g. package-manager modals).
+   The full-page #view > .spinning card rule still wins for the view loader. */
+p.spinning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--ink-soft);
+
+  &::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    border: 3px solid var(--paper-2);
+    border-top-color: var(--pink-deep);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.deps {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.errors {
+  color: #d14f3c;
+  font-weight: 700;
+}
+
+.cbi-tab-disabled {
+  opacity: 0.5;
+}
+
+.table .col-1 {
+  white-space: nowrap;
+}
+
+/* Empty-state emphasis inside table cells */
+.table .td > em:only-child,
+table.cbi-section-table tbody tr td > em:only-child {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.td.middle {
+  vertical-align: middle;
 }

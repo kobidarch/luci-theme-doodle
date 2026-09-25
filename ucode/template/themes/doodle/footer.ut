@@ -64,6 +64,91 @@
     if (!content) return;
 
     function processContent() {
+      /* DHCP/DNS page: long section introductions read better as page
+         text above the card instead of boxed inside it. The form renderer
+         shuffles nodes while building, so on every pass lift any intro
+         still sitting inside a card to before the outermost one. Intros
+         belonging to an inactive tab panel stay put (hidden with it). */
+      if (document.body.dataset.page === 'admin-network-dhcp') {
+        (function moveSectionIntros() {
+          var descrs = content.querySelectorAll('.cbi-section .cbi-section-descr');
+          for (var i = 0; i < descrs.length; i++) {
+            var d = descrs[i];
+            /* Hidden tab panel content stays with its panel. */
+            if (d.offsetParent === null) continue;
+            var tab = d.closest('[data-tab][data-tab-title]');
+            if (tab && tab.getAttribute('data-tab-active') !== 'true')
+              continue;
+            var anc = d.parentElement, outer = null;
+            while (anc && anc !== content) {
+              if (anc.classList && anc.classList.contains('cbi-section'))
+                outer = anc;
+              anc = anc.parentElement;
+            }
+            if (!outer) continue;
+            d.classList.add('dhcp-outside');
+            outer.parentNode.insertBefore(d, outer);
+          }
+        })();
+      }
+
+      /* Wrap orphan tables (processes, startup, diagnostics…) in doodle
+         cards so they don't float raw. Tables already inside a card,
+         a modal, or an .nft-table are left alone. */
+      function tableOverflows(t) {
+        if (t.scrollWidth > t.clientWidth + 1) return true;
+        /* Table box outgrowing its container (grown by min-content). */
+        var p = t.parentElement;
+        if (p && p.clientWidth && t.clientWidth > p.clientWidth + 1) return true;
+        /* Action-button cells can spill past their column while the
+           table box itself still fits (firewall zones). */
+        var cells = t.querySelectorAll('tbody tr td:last-child, tbody tr .td:last-child, .tr .td:last-child');
+        for (var k = 0; k < cells.length; k++) {
+          if (cells[k].scrollWidth > cells[k].clientWidth + 1) return true;
+        }
+        return false;
+      }
+
+      (function wrapBareTables() {
+        var tables = content.querySelectorAll('table.table, table.cbi-section-table');
+        for (var i = 0; i < tables.length; i++) {
+          var t = tables[i];
+          if (!t.dataset.wrapped) {
+            if (t.closest('.cbi-section, .modal, .nft-table')) continue;
+            t.dataset.wrapped = '1';
+            var wrap = document.createElement('div');
+            wrap.className = 'cbi-section cbi-section-table-wrap';
+            t.parentNode.insertBefore(wrap, t);
+            wrap.appendChild(t);
+          }
+          if (!t.dataset.scroller && !t.closest('.cbi-section-table-scroller') && tableOverflows(t)) {
+            t.dataset.scroller = '1';
+            var scroller = document.createElement('div');
+            scroller.className = 'cbi-section-table-scroller';
+            t.parentNode.insertBefore(scroller, t);
+            scroller.appendChild(t);
+          }
+        }
+      })();
+
+      /* Grid tables living inside cards (firewall zones…) that overflow
+         get the same scroller so action buttons stay reachable instead
+         of sliced at the ink border. */
+      (function wrapOverflowingTables() {
+        var tables = content.querySelectorAll('.cbi-section table.table, .cbi-section table.cbi-section-table');
+        for (var i = 0; i < tables.length; i++) {
+          var t = tables[i];
+          if (t.dataset.scroller || t.closest('.modal, .nft-table, .cbi-section-table-scroller')) continue;
+          if (tableOverflows(t)) {
+            t.dataset.scroller = '1';
+            var scroller = document.createElement('div');
+            scroller.className = 'cbi-section-table-scroller';
+            t.parentNode.insertBefore(scroller, t);
+            scroller.appendChild(t);
+          }
+        }
+      })();
+
       /* Attach page description as tooltip on header title */
       if (headerTitle && !headerTitle.title) {
         var descr = content.querySelector('.cbi-map-descr');
@@ -130,6 +215,166 @@
     new MutationObserver(function() {
       processContent();
     }).observe(content, { childList: true, subtree: true });
+  })();
+
+  /* Mouse-origin tooltip placement — the cursor is the starting corner
+     and the card grows diagonally towards the viewport middle: the free
+     vertical edge heads for the y axis, the free horizontal edge for the
+     x axis, so the card always lands in view without clipping. Fixed
+     positioning also escapes every ink border, no masking hacks needed. */
+  (function() {
+    var GAP = 6;
+    var current = null;
+
+    function clear(tip) {
+      tip.style.position = '';
+      tip.style.left = '';
+      tip.style.right = '';
+      tip.style.top = '';
+      tip.style.bottom = '';
+      tip.style.transform = '';
+      tip.style.margin = '';
+      tip.style.maxWidth = '';
+      tip.style.maxHeight = '';
+      tip.style.overflowY = '';
+      tip.style.zIndex = '';
+    }
+
+    function place(container, mx, my) {
+      var tip = container.querySelector(':scope > .cbi-tooltip');
+      if (!tip || tip.classList.contains('left')) return;
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var goRight = mx < vw / 2;
+      var goDown = my < vh / 2;
+
+      tip.classList.remove('below');
+      tip.style.position = 'fixed';
+      tip.style.transform = 'none';
+      tip.style.margin = '0';
+      tip.style.maxWidth = 'min(300px, 90vw)';
+      tip.style.zIndex = 'var(--z-toast)';
+
+      if (goRight) {
+        tip.style.left = (mx + GAP) + 'px';
+        tip.style.right = 'auto';
+      } else {
+        tip.style.left = 'auto';
+        tip.style.right = (vw - mx + GAP) + 'px';
+      }
+
+      if (goDown) {
+        tip.style.top = (my + GAP) + 'px';
+        tip.style.bottom = 'auto';
+      } else {
+        tip.style.top = 'auto';
+        tip.style.bottom = (vh - my + GAP) + 'px';
+      }
+
+      /* Oversized card (bigger than its half): pull the far edge back
+         so it still fits, keeping the mouse corner glued. */
+      var r = tip.getBoundingClientRect();
+      if (r.right > vw - GAP)
+        tip.style.maxWidth = Math.max(120, vw - (goRight ? mx : 0) - GAP * 2) + 'px';
+      if (r.bottom > vh - GAP) {
+        tip.style.maxHeight = Math.max(80, vh - (goDown ? my : 0) - GAP * 2) + 'px';
+        tip.style.overflowY = 'auto';
+      }
+
+      current = { container: container, tip: tip };
+    }
+
+    function unplace() {
+      if (!current) return;
+      clear(current.tip);
+      if (current.container) current.container._placed = false;
+      current = null;
+    }
+
+    document.addEventListener('mouseover', function(ev) {
+      var c = ev.target.closest ? ev.target.closest('.cbi-tooltip-container') : null;
+      if (!c || c._placed) return;
+      c._placed = true;
+      place(c, ev.clientX, ev.clientY);
+    });
+
+    document.addEventListener('mouseout', function(ev) {
+      var c = ev.target.closest ? ev.target.closest('.cbi-tooltip-container') : null;
+      if (c && !c.contains(ev.relatedTarget)) {
+        c._placed = false;
+        if (current && current.container === c) {
+          clear(current.tip);
+          current = null;
+        }
+      }
+    });
+
+    /* No stale floaters: a scroll drops the pinned card. */
+    document.addEventListener('scroll', unplace, true);
+  })();
+
+  /* Smart dropdown placement — an open menu that would run past the
+     viewport bottom flips upward; one running past the side
+     right-aligns. Keeps every option reachable. */
+  (function() {
+    var EDGE_PAD = 8;
+
+    function placeMenu(dd) {
+      var ul = dd.querySelector(':scope > ul.dropdown');
+      if (!ul) return;
+      ul.classList.remove('drop-up', 'flip-x');
+
+      var r = ul.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+
+      if (r.bottom > window.innerHeight - EDGE_PAD)
+        ul.classList.add('drop-up');
+
+      r = ul.getBoundingClientRect();
+      if (r.right > window.innerWidth - EDGE_PAD)
+        ul.classList.add('flip-x');
+    }
+
+    new MutationObserver(function(muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var t = muts[i].target;
+        if (t.classList && t.classList.contains('cbi-dropdown') &&
+            t.hasAttribute('open'))
+          placeMenu(t);
+      }
+    }).observe(document.documentElement, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['open']
+    });
+  })();
+
+  /* Modal scroll guard — opening/closing a dropdown must never yank a
+     scrolled modal back to the top. Snapshot the modal position on the
+     opening click and put it back after LuCI settles. */
+  (function() {
+    var saved = null;
+
+    function snapshot(modal) {
+      saved = { modal: modal, top: modal.scrollTop };
+    }
+
+    function restore() {
+      if (!saved || !saved.modal.isConnected) { saved = null; return; }
+      if (Math.abs(saved.modal.scrollTop - saved.top) > 2)
+        saved.modal.scrollTop = saved.top;
+    }
+
+    document.addEventListener('click', function(ev) {
+      var dd = ev.target.closest ? ev.target.closest('.cbi-dropdown') : null;
+      if (!dd) return;
+      var modal = dd.closest('.modal');
+      if (!modal) return;
+      snapshot(modal);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(restore);
+      });
+      setTimeout(function() { restore(); saved = null; }, 350);
+    }, true);
   })();
 </script>
 {% endif %}

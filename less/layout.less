@@ -16,7 +16,8 @@
   background-image: var(--bg-dots);
   background-size: 26px 26px;
 
-  img, video {
+  img,
+  video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -142,7 +143,10 @@
   font-family: var(--font-sans);
   color: var(--ink);
   text-decoration: none;
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
 
   &:hover {
     background: var(--paper);
@@ -168,7 +172,8 @@
     flex-shrink: 0;
     background: var(--butter);
     color: var(--on-pastel);
-    svg, &svg {
+    svg,
+    &svg {
       width: 1.15em;
       height: 1.15em;
     }
@@ -195,19 +200,33 @@
 }
 
 /* Pastel icon circles cycle like the demo */
-.nav-group .nav-item:nth-child(6n+2) .nav-icon { background: var(--sky); }
-.nav-group .nav-item:nth-child(6n+3) .nav-icon { background: var(--mint); }
-.nav-group .nav-item:nth-child(6n+4) .nav-icon { background: var(--butter); }
-.nav-group .nav-item:nth-child(6n+5) .nav-icon { background: var(--lav); }
-.nav-group .nav-item:nth-child(6n+6) .nav-icon { background: var(--pink); }
-.nav-group .nav-item:nth-child(6n+7) .nav-icon { background: var(--peach); }
+.nav-group .nav-item:nth-child(6n + 2) .nav-icon {
+  background: var(--sky);
+}
+.nav-group .nav-item:nth-child(6n + 3) .nav-icon {
+  background: var(--mint);
+}
+.nav-group .nav-item:nth-child(6n + 4) .nav-icon {
+  background: var(--butter);
+}
+.nav-group .nav-item:nth-child(6n + 5) .nav-icon {
+  background: var(--lav);
+}
+.nav-group .nav-item:nth-child(6n + 6) .nav-icon {
+  background: var(--pink);
+}
+.nav-group .nav-item:nth-child(6n + 7) .nav-icon {
+  background: var(--peach);
+}
 
 .nav-sub {
   position: relative;
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  transition: max-height 0.25s ease, opacity 0.2s ease;
+  transition:
+    max-height 0.25s ease,
+    opacity 0.2s ease;
 
   &.open {
     max-height: 2000px;
@@ -246,7 +265,9 @@
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
   box-shadow: var(--shadow-sm);
-  &:empty { display: none; }
+  &:empty {
+    display: none;
+  }
 }
 
 .header-tab {
@@ -259,7 +280,9 @@
   text-decoration: none;
   white-space: nowrap;
   border: 2.5px solid transparent;
-  transition: transform .1s ease, box-shadow .1s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 
   &:hover {
     background: var(--paper-2);
@@ -304,14 +327,22 @@
       opacity: 0.8;
     }
 
-    &[data-level="warn"] { color: #b07400; }
-    &[data-level="crit"] { color: #d14f3c; }
-    &[data-level="active"] { color: #2f7fb8; }
-    &[data-level="busy"] { color: #8a5fd6; }
+    &[data-level="warn"] {
+      color: #b07400;
+    }
+    &[data-level="crit"] {
+      color: #d14f3c;
+    }
+    &[data-level="active"] {
+      color: #2f7fb8;
+    }
+    &[data-level="busy"] {
+      color: #8a5fd6;
+    }
   }
 
   [data-indicator] + [data-indicator] {
-    border-left: 2px dashed rgba(43,35,32,0.25);
+    border-left: 2px dashed rgba(43, 35, 32, 0.25);
     padding-left: 8px;
   }
 }
@@ -363,7 +394,9 @@
   background: var(--paper-2);
   border-bottom: var(--stroke) solid var(--ink);
 
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
   scrollbar-width: none;
 
   &.active {
@@ -382,7 +415,9 @@
   white-space: nowrap;
   cursor: pointer;
   border: 2.5px solid transparent;
-  transition: transform .1s ease, box-shadow .1s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 
   &:hover {
     background: var(--paper);
@@ -397,10 +432,20 @@
   }
 }
 
-/* ---- Page transition ---- */
+/* ---- Page transition ----
+   NOTE: fill mode is backwards (not both): the finished state equals the
+   natural styles, and a retained fill would leave a permanent transform
+   behind — turning every animated wrapper into a stacking context that
+   traps dropdown/tooltip z-indexes underneath later siblings. */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ---- Main content area (demo .main-wrap) ---- */
@@ -409,11 +454,11 @@
   margin-top: var(--header-height);
   min-height: calc(100vh - var(--header-height));
   padding: var(--content-padding);
-  animation: page-enter 0.25s ease both;
+  animation: page-enter 0.25s ease backwards;
 }
 
 #view > :not(.spinning) {
-  animation: page-enter 0.22s ease both;
+  animation: page-enter 0.22s ease backwards;
 }
 
 #view > .spinning {
@@ -432,7 +477,9 @@
 body.page-leaving #content-wrap {
   opacity: 0;
   transform: translateY(-8px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 body.has-sub-nav #content-wrap {

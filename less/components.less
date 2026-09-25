@@ -12,6 +12,7 @@
   overflow: hidden;
 
   &:has(.cbi-dropdown[open]) {
+    overflow: visible;
     z-index: var(--z-dropdown);
   }
 
@@ -27,7 +28,10 @@
 }
 
 .cbi-section > .cbi-section-node,
-.cbi-section > div:not(h3):not(.cbi-section-descr) {
+.cbi-section
+  > div:not(h3):not(.cbi-section-descr):not(.cbi-section-create):not(
+    .cbi-section-table-scroller
+  ) {
   padding: 0 var(--space-xl);
 }
 
@@ -41,7 +45,7 @@
   font-weight: 600;
   margin: 0 var(--space-xl) var(--space-lg);
   padding-bottom: var(--space-lg);
-  border-bottom: 1.5px dashed rgba(43,35,32,0.25);
+  border-bottom: 1.5px dashed rgba(43, 35, 32, 0.25);
 }
 
 .cbi-section > h3,
@@ -59,8 +63,12 @@
 }
 
 /* Cycle pastel section headers */
-.cbi-section:nth-of-type(3n+2) > h3 { background: var(--mint); }
-.cbi-section:nth-of-type(3n+3) > h3 { background: var(--sky); }
+.cbi-section:nth-of-type(3n + 2) > h3 {
+  background: var(--mint);
+}
+.cbi-section:nth-of-type(3n + 3) > h3 {
+  background: var(--sky);
+}
 
 /* Head strips sit flush against the card top. Without this, the generic
    view-h3 rule (higher specificity) leaves a paper gap above the strip,
@@ -72,6 +80,18 @@
 #maincontent .cbi-section-node > h3,
 #maincontent .cbi-section > .cbi-title > h3 {
   margin-top: 0;
+}
+
+/* A strip that ends its card fuses with whatever follows (e.g. stacked
+   strip/table sections on the routes status page) instead of leaving a
+   paper gap above the next header. */
+#view .cbi-section > h3:last-child,
+#maincontent .cbi-section > h3:last-child,
+#view .cbi-section > h3:has(+ table),
+#view .cbi-section > h3:has(+ .table),
+#maincontent .cbi-section > h3:has(+ table),
+#maincontent .cbi-section > h3:has(+ .table) {
+  margin-bottom: 0;
 }
 
 /* Head strips escape their padded wrappers so every heading spans the
@@ -146,15 +166,15 @@
     border-radius: 50%;
     border: 2px solid var(--ink);
     background: var(--paper);
-    transition: transform .12s ease;
+    transition: transform 0.12s ease;
 
     &:hover {
-      transform: translate(-1px,-1px);
+      transform: translate(-1px, -1px);
       box-shadow: 2px 2px 0 var(--shadow-col);
     }
 
     &::after {
-      content: '';
+      content: "";
       display: block;
       width: 7px;
       height: 7px;
@@ -195,8 +215,12 @@
   border-bottom: var(--stroke) solid var(--ink);
 }
 
-.cbi-section:not(.fade-in):nth-of-type(3n+2) > .cbi-title > h3 { background: var(--mint); }
-.cbi-section:not(.fade-in):nth-of-type(3n+3) > .cbi-title > h3 { background: var(--sky); }
+.cbi-section:not(.fade-in):nth-of-type(3n + 2) > .cbi-title > h3 {
+  background: var(--mint);
+}
+.cbi-section:not(.fade-in):nth-of-type(3n + 3) > .cbi-title > h3 {
+  background: var(--sky);
+}
 
 /* Hide/Show toggle pill (overview status includes) */
 .cbi-section > .cbi-title > h3 > .label {
@@ -212,7 +236,7 @@
   text-align: center;
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--shadow-col);
-  transition: transform .1s ease;
+  transition: transform 0.1s ease;
 }
 
 .cbi-section > .cbi-title > h3 > .label:hover {
@@ -249,7 +273,7 @@
   align-items: flex-start;
   padding: 8px 0;
   margin: 0 var(--space-xl);
-  border-bottom: 1.5px dashed rgba(43,35,32,0.18);
+  border-bottom: 1.5px dashed rgba(43, 35, 32, 0.18);
   gap: 10px;
 
   &:last-child {
@@ -376,8 +400,14 @@ select {
 }
 
 /* Extra pastel mapping for common actions */
-.cbi-button-add { background: var(--butter); color: var(--on-pastel); }
-.cbi-button-edit { background: var(--lav); color: var(--on-pastel); }
+.cbi-button-add {
+  background: var(--butter);
+  color: var(--on-pastel);
+}
+.cbi-button-edit {
+  background: var(--lav);
+  color: var(--on-pastel);
+}
 
 .cbi-page-actions {
   background: var(--paper);
@@ -404,7 +434,8 @@ table.cbi-section-table {
   thead tr,
   .tr.table-titles,
   .tr.cbi-section-table-titles {
-    th, .th {
+    th,
+    .th {
       padding: 9px 12px;
       text-align: left;
       font-weight: 800;
@@ -418,9 +449,10 @@ table.cbi-section-table {
 
   tbody tr,
   .tr {
-    td, .td {
+    td,
+    .td {
       padding: 9px 12px;
-      border-bottom: 1.5px dashed rgba(43,35,32,0.2);
+      border-bottom: 1.5px dashed rgba(43, 35, 32, 0.2);
       background: var(--paper);
       font-size: 0.85rem;
       vertical-align: middle;
@@ -429,6 +461,9 @@ table.cbi-section-table {
     &:last-child td,
     &:last-child .td {
       border-bottom: none;
+      /* Clearance between trailing buttons and the card's bottom ink
+         border so the two never read as merged. */
+      padding-bottom: 16px;
     }
 
     td:last-child:has(.cbi-button),
@@ -449,14 +484,45 @@ table.cbi-section-table {
   }
 }
 
-/* Table wrapper inside cards — the card provides the frame, so the table
-   itself stays flat (no double borders / poking corners). Tables with an
-   inline width (e.g. realtime legend) keep auto width to avoid overflow. */
+/* Add-new rows at the foot of grid/table sections (interfaces, routes,
+   DHCP…) — breathing room above the bottom ink border, flexible layout
+   so name/protocol fields share the row and wrap on narrow screens. */
+.cbi-section-create {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0 var(--space-xl) var(--space-xl);
+
+  > input,
+  > select {
+    flex: 1 1 150px;
+    width: auto;
+    min-width: 0;
+  }
+}
+
+/* Tables inside cards — header rows bleed edge-to-edge like section
+   strips (the card clips the corners round). thead-less tables (controls,
+   legends) stay inset so content doesn't crowd the top border. Tables
+   with an inline width (e.g. realtime legend) keep auto width. */
 .cbi-section > .table,
 .cbi-section > table.cbi-section-table {
+  margin: 0;
+  width: 100%;
+  border-radius: 0;
+}
+
+.cbi-section
+  > .table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ),
+.cbi-section
+  > table.cbi-section-table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ) {
   margin: 0 var(--space-xl) var(--space-lg);
   width: calc(100% - var(--space-xl) * 2);
-  border-radius: 0;
 }
 
 .cbi-section > .table[style*="width"],
@@ -465,14 +531,47 @@ table.cbi-section-table {
 }
 
 /* thead-less tables (e.g. realtime legend) get a top frame */
-.table:not(:has(thead)):not(:has(.tr.table-titles)):not(:has(.tr.cbi-section-table-titles)) {
+.table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ) {
   border-top: var(--stroke-thin) solid var(--ink);
+}
+
+/* ...unless glued directly under a strip/title — its border already
+   frames the table, a second one reads as a chaotic double band. */
+.cbi-section
+  > .cbi-title
+  + div
+  > .table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ),
+.cbi-section
+  > h3
+  + div
+  > .table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ),
+.cbi-section
+  > .cbi-title
+  + div
+  > table.cbi-section-table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ),
+.cbi-section
+  > h3
+  + div
+  > table.cbi-section-table:not(:has(thead)):not(:has(.tr.table-titles)):not(
+    :has(.tr.cbi-section-table-titles)
+  ) {
+  border-top: none;
 }
 
 /* Tables whose body has an actions column but whose header doesn't
    (e.g. repokeys TableSection): stretch the butter header strip over it */
-.table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions)) thead tr::after {
-  content: '';
+.table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions))
+  thead
+  tr::after {
+  content: "";
   display: table-cell;
   background: var(--butter);
   border-bottom: var(--stroke) solid var(--ink);
@@ -595,8 +694,13 @@ table.cbi-section-table {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      &[display] { display: flex; align-items: center; }
-      &[placeholder]:not([display]) { display: none; }
+      &[display] {
+        display: flex;
+        align-items: center;
+      }
+      &[placeholder]:not([display]) {
+        display: none;
+      }
       &[placeholder][display] {
         color: var(--ink-soft);
         font-style: italic;
@@ -614,6 +718,8 @@ table.cbi-section-table {
     position: absolute;
     z-index: var(--z-modal);
     min-width: 100%;
+    width: max-content;
+    max-width: min(85vw, 560px);
     max-height: 250px !important;
     overflow-y: auto;
     display: block;
@@ -624,14 +730,33 @@ table.cbi-section-table {
     border: var(--stroke) solid var(--ink);
     box-shadow: var(--shadow-lg);
 
+    /* Auto-placement (footer.ut): open upward / right-aligned when the
+       default spot would leave the viewport. */
+    &.drop-up {
+      top: auto;
+      bottom: 100%;
+      margin: 0 0 8px;
+    }
+
+    &.flip-x {
+      left: auto;
+      right: 0;
+    }
+
     > li {
       display: flex;
       align-items: center;
       padding: 8px 10px;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: background .1s ease;
-      &:hover { background: var(--paper-2); border: 2px solid var(--ink); }
+      transition: background 0.1s ease;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      &:hover {
+        background: var(--paper-2);
+        border: 2px solid var(--ink);
+      }
       &[selected] {
         background: var(--lav);
         color: var(--on-pastel);
@@ -641,8 +766,78 @@ table.cbi-section-table {
     }
   }
 
-  &[open] > ul.preview { display: flex; }
-  > div { display: none; }
+  &[open] > ul.preview {
+    display: flex;
+  }
+  > div {
+    display: none;
+  }
+
+  /* Option toggle affordance (the …▾ handle) */
+  > .open,
+  > .more {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 0 8px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+
+  /* Device/status icons stay inside the pill and menu rows */
+  img {
+    max-height: 1.6em;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  /* Inner option content states (ported from stock): options carrying
+     descriptions render compact when closed, full when open; multi-select
+     checkbox rows only appear inside the open menu. Without these,
+     descriptions pile up inside the closed preview. */
+  > ul > li {
+    > form {
+      display: none;
+      pointer-events: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .hide-close {
+      display: none;
+    }
+    .hide-open {
+      display: initial;
+    }
+
+    img {
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+  }
+
+  &[open] > ul.dropdown > li {
+    .hide-open {
+      display: none;
+    }
+    .hide-close {
+      display: initial;
+    }
+
+    > form {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      pointer-events: auto;
+
+      > input[type="checkbox"] {
+        margin: 2px 0 0;
+        flex-shrink: 0;
+      }
+    }
+  }
 }
 
 /* ---- Tabs (demo swatch pills) ---- */
@@ -700,7 +895,9 @@ table.cbi-section-table {
   border: var(--stroke) solid var(--ink);
   box-shadow: var(--shadow-lg);
 
-  > h4, > .title, > strong:first-child {
+  > h4,
+  > .title,
+  > strong:first-child {
     font-family: var(--font-display);
     margin-bottom: 6px;
   }
@@ -748,7 +945,10 @@ table.cbi-section-table {
   &::after {
     content: attr(title);
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -770,9 +970,11 @@ input[type="radio"] {
 #modal_overlay {
   display: none;
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(43,35,32,0.35);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(43, 35, 32, 0.35);
   z-index: var(--z-modal);
 
   > .modal {
@@ -791,12 +993,11 @@ input[type="radio"] {
     > .cbi-section,
     > form > .cbi-section,
     > .cbi-map > .cbi-section {
+      background: none;
+      border: none;
+      border-radius: 0;
       box-shadow: none;
       margin: 0 0 var(--space-lg);
-    }
-
-    &:has(.cbi-dropdown[open]) {
-      overflow: visible;
     }
   }
 
@@ -814,6 +1015,9 @@ body.modal-overlay-active #modal_overlay {
 
 /* UCI Changes dialog */
 .uci-dialog .cbi-section {
+  background: none;
+  border: none;
+  border-radius: 0;
   box-shadow: none;
 }
 .uci-change-legend {
@@ -829,7 +1033,9 @@ body.modal-overlay-active #modal_overlay {
   font-size: 0.82rem;
   font-weight: 700;
 
-  > ins, > del, > var {
+  > ins,
+  > del,
+  > var {
     display: inline-block;
     width: 14px;
     height: 14px;
@@ -840,9 +1046,15 @@ body.modal-overlay-active #modal_overlay {
     overflow: hidden;
   }
 
-  > ins { background: var(--mint); }
-  > del { background: var(--coral); }
-  > var { background: var(--sky); }
+  > ins {
+    background: var(--mint);
+  }
+  > del {
+    background: var(--coral);
+  }
+  > var {
+    background: var(--sky);
+  }
 }
 
 .uci-change-list {
@@ -852,7 +1064,9 @@ body.modal-overlay-active #modal_overlay {
   flex-direction: column;
   overflow: auto;
 
-  ins, del, var {
+  ins,
+  del,
+  var {
     display: block;
     padding: 8px 12px;
     margin-bottom: 6px;
@@ -864,11 +1078,21 @@ body.modal-overlay-active #modal_overlay {
     border: var(--stroke-thin) solid var(--ink);
   }
 
-  ins { background: var(--mint); color: var(--on-pastel); }
-  del { background: var(--coral); color: var(--on-pastel); }
-  var { background: var(--sky); color: var(--on-pastel); }
+  ins {
+    background: var(--mint);
+    color: var(--on-pastel);
+  }
+  del {
+    background: var(--coral);
+    color: var(--on-pastel);
+  }
+  var {
+    background: var(--sky);
+    color: var(--on-pastel);
+  }
 
-  var ins, var del {
+  var ins,
+  var del {
     display: inline;
     padding: 0;
     margin: 0;
