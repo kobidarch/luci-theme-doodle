@@ -30,6 +30,10 @@ echo "src/gz doodle https://kobidarch.github.io/luci-theme-doodle/packages" >> /
 opkg update && opkg install luci-theme-doodle
 
 # apk (25.12+)
+# one-time: trust the feed signing key
+wget -O /etc/apk/keys/doodle-apk.pem \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/apk/keys/doodle-apk.pem
+
 echo "https://kobidarch.github.io/luci-theme-doodle/apk/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 apk update && apk add luci-theme-doodle
 ```
