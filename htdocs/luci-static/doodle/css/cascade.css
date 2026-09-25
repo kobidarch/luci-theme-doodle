@@ -445,22 +445,22 @@ svg.icon,
   opacity: 0.8;
 }
 /* Pastel icon circles cycle like the demo */
-.nav-group .nav-item:nth-child(6n+2) .nav-icon {
+.nav-group .nav-item:nth-child(6n + 2) .nav-icon {
   background: var(--sky);
 }
-.nav-group .nav-item:nth-child(6n+3) .nav-icon {
+.nav-group .nav-item:nth-child(6n + 3) .nav-icon {
   background: var(--mint);
 }
-.nav-group .nav-item:nth-child(6n+4) .nav-icon {
+.nav-group .nav-item:nth-child(6n + 4) .nav-icon {
   background: var(--butter);
 }
-.nav-group .nav-item:nth-child(6n+5) .nav-icon {
+.nav-group .nav-item:nth-child(6n + 5) .nav-icon {
   background: var(--lav);
 }
-.nav-group .nav-item:nth-child(6n+6) .nav-icon {
+.nav-group .nav-item:nth-child(6n + 6) .nav-icon {
   background: var(--pink);
 }
-.nav-group .nav-item:nth-child(6n+7) .nav-icon {
+.nav-group .nav-item:nth-child(6n + 7) .nav-icon {
   background: var(--peach);
 }
 .nav-sub {
@@ -645,7 +645,11 @@ svg.icon,
   border-color: var(--ink);
   box-shadow: var(--shadow-sm);
 }
-/* ---- Page transition ---- */
+/* ---- Page transition ----
+   NOTE: fill mode is backwards (not both): the finished state equals the
+   natural styles, and a retained fill would leave a permanent transform
+   behind — turning every animated wrapper into a stacking context that
+   traps dropdown/tooltip z-indexes underneath later siblings. */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -662,10 +666,10 @@ svg.icon,
   margin-top: var(--header-height);
   min-height: calc(100vh - var(--header-height));
   padding: var(--content-padding);
-  animation: page-enter 0.25s ease both;
+  animation: page-enter 0.25s ease backwards;
 }
 #view > :not(.spinning) {
-  animation: page-enter 0.22s ease both;
+  animation: page-enter 0.22s ease backwards;
 }
 #view > .spinning {
   background: var(--paper);
@@ -759,6 +763,7 @@ body.has-sub-nav #content-wrap {
   /* Nested sections — flatten */
 }
 .cbi-section:has(.cbi-dropdown[open]) {
+  overflow: visible;
   z-index: var(--z-dropdown);
 }
 .cbi-section .cbi-section {
@@ -770,7 +775,9 @@ body.has-sub-nav #content-wrap {
   border-radius: 0;
 }
 .cbi-section > .cbi-section-node,
-.cbi-section > div:not(h3):not(.cbi-section-descr) {
+.cbi-section > div:not(h3):not(.cbi-section-descr):not(.cbi-section-create):not(
+    .cbi-section-table-scroller
+  ) {
   padding: 0 var(--space-xl);
 }
 .cbi-section > div:last-child {
@@ -798,10 +805,10 @@ body.has-sub-nav #content-wrap {
   border-bottom: var(--stroke) solid var(--ink);
 }
 /* Cycle pastel section headers */
-.cbi-section:nth-of-type(3n+2) > h3 {
+.cbi-section:nth-of-type(3n + 2) > h3 {
   background: var(--mint);
 }
-.cbi-section:nth-of-type(3n+3) > h3 {
+.cbi-section:nth-of-type(3n + 3) > h3 {
   background: var(--sky);
 }
 /* Head strips sit flush against the card top. Without this, the generic
@@ -814,6 +821,17 @@ body.has-sub-nav #content-wrap {
 #maincontent .cbi-section-node > h3,
 #maincontent .cbi-section > .cbi-title > h3 {
   margin-top: 0;
+}
+/* A strip that ends its card fuses with whatever follows (e.g. stacked
+   strip/table sections on the routes status page) instead of leaving a
+   paper gap above the next header. */
+#view .cbi-section > h3:last-child,
+#maincontent .cbi-section > h3:last-child,
+#view .cbi-section > h3:has(+ table),
+#view .cbi-section > h3:has(+ .table),
+#maincontent .cbi-section > h3:has(+ table),
+#maincontent .cbi-section > h3:has(+ .table) {
+  margin-bottom: 0;
 }
 /* Head strips escape their padded wrappers so every heading spans the
    full card width: node-level titles pull past node padding, and sections
@@ -888,7 +906,7 @@ body.has-sub-nav #content-wrap {
   box-shadow: 2px 2px 0 var(--shadow-col);
 }
 .cbi-section.fade-in .cbi-title > div:last-child span::after {
-  content: '';
+  content: "";
   display: block;
   width: 7px;
   height: 7px;
@@ -923,10 +941,10 @@ body.has-sub-nav #content-wrap {
   color: var(--on-pastel);
   border-bottom: var(--stroke) solid var(--ink);
 }
-.cbi-section:not(.fade-in):nth-of-type(3n+2) > .cbi-title > h3 {
+.cbi-section:not(.fade-in):nth-of-type(3n + 2) > .cbi-title > h3 {
   background: var(--mint);
 }
-.cbi-section:not(.fade-in):nth-of-type(3n+3) > .cbi-title > h3 {
+.cbi-section:not(.fade-in):nth-of-type(3n + 3) > .cbi-title > h3 {
   background: var(--sky);
 }
 /* Hide/Show toggle pill (overview status includes) */
@@ -1203,6 +1221,9 @@ table.cbi-section-table tbody tr:last-child .td,
 .table .tr:last-child .td,
 table.cbi-section-table .tr:last-child .td {
   border-bottom: none;
+  /* Clearance between trailing buttons and the card's bottom ink
+         border so the two never read as merged. */
+  padding-bottom: 16px;
 }
 .table tbody tr td:last-child:has(.cbi-button),
 table.cbi-section-table tbody tr td:last-child:has(.cbi-button),
@@ -1236,27 +1257,57 @@ table.cbi-section-table tbody tr:hover .td,
 table.cbi-section-table .tr:hover .td {
   background: var(--paper-2);
 }
-/* Table wrapper inside cards — the card provides the frame, so the table
-   itself stays flat (no double borders / poking corners). Tables with an
-   inline width (e.g. realtime legend) keep auto width to avoid overflow. */
+/* Add-new rows at the foot of grid/table sections (interfaces, routes,
+   DHCP…) — breathing room above the bottom ink border, flexible layout
+   so name/protocol fields share the row and wrap on narrow screens. */
+.cbi-section-create {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0 var(--space-xl) var(--space-xl);
+}
+.cbi-section-create > input,
+.cbi-section-create > select {
+  flex: 1 1 150px;
+  width: auto;
+  min-width: 0;
+}
+/* Tables inside cards — header rows bleed edge-to-edge like section
+   strips (the card clips the corners round). thead-less tables (controls,
+   legends) stay inset so content doesn't crowd the top border. Tables
+   with an inline width (e.g. realtime legend) keep auto width. */
 .cbi-section > .table,
 .cbi-section > table.cbi-section-table {
+  margin: 0;
+  width: 100%;
+  border-radius: 0;
+}
+.cbi-section > .table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)),
+.cbi-section > table.cbi-section-table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)) {
   margin: 0 var(--space-xl) var(--space-lg);
   width: calc(100% - var(--space-xl) * 2);
-  border-radius: 0;
 }
 .cbi-section > .table[style*="width"],
 .cbi-section > table.cbi-section-table[style*="width"] {
   width: auto;
 }
 /* thead-less tables (e.g. realtime legend) get a top frame */
-.table:not(:has(thead)):not(:has(.tr.table-titles)):not(:has(.tr.cbi-section-table-titles)) {
+.table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)) {
   border-top: var(--stroke-thin) solid var(--ink);
+}
+/* ...unless glued directly under a strip/title — its border already
+   frames the table, a second one reads as a chaotic double band. */
+.cbi-section > .cbi-title + div > .table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)),
+.cbi-section > h3 + div > .table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)),
+.cbi-section > .cbi-title + div > table.cbi-section-table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)),
+.cbi-section > h3 + div > table.cbi-section-table:not(:has(thead)):not(:has(.tr.table-titles)):not( :has(.tr.cbi-section-table-titles)) {
+  border-top: none;
 }
 /* Tables whose body has an actions column but whose header doesn't
    (e.g. repokeys TableSection): stretch the butter header strip over it */
 .table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions)) thead tr::after {
-  content: '';
+  content: "";
   display: table-cell;
   background: var(--butter);
   border-bottom: var(--stroke) solid var(--ink);
@@ -1356,6 +1407,12 @@ table.cbi-section-table .tr:hover .td {
   border: var(--stroke-thin) solid var(--ink);
   border-radius: var(--radius-sm);
   padding: 2px 6px;
+  /* Option toggle affordance (the …▾ handle) */
+  /* Device/status icons stay inside the pill and menu rows */
+  /* Inner option content states (ported from stock): options carrying
+     descriptions render compact when closed, full when open; multi-select
+     checkbox rows only appear inside the open menu. Without these,
+     descriptions pile up inside the closed preview. */
 }
 .cbi-dropdown > ul {
   list-style: none;
@@ -1392,6 +1449,8 @@ table.cbi-section-table .tr:hover .td {
   position: absolute;
   z-index: var(--z-modal);
   min-width: 100%;
+  width: max-content;
+  max-width: min(85vw, 560px);
   max-height: 250px !important;
   overflow-y: auto;
   display: block;
@@ -1401,6 +1460,17 @@ table.cbi-section-table .tr:hover .td {
   background: var(--paper);
   border: var(--stroke) solid var(--ink);
   box-shadow: var(--shadow-lg);
+  /* Auto-placement (footer.ut): open upward / right-aligned when the
+       default spot would leave the viewport. */
+}
+.cbi-dropdown[open] > ul.dropdown.drop-up {
+  top: auto;
+  bottom: 100%;
+  margin: 0 0 8px;
+}
+.cbi-dropdown[open] > ul.dropdown.flip-x {
+  left: auto;
+  right: 0;
 }
 .cbi-dropdown[open] > ul.dropdown > li {
   display: flex;
@@ -1409,6 +1479,9 @@ table.cbi-section-table .tr:hover .td {
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.1s ease;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
 }
 .cbi-dropdown[open] > ul.dropdown > li:hover {
   background: var(--paper-2);
@@ -1425,6 +1498,54 @@ table.cbi-section-table .tr:hover .td {
 }
 .cbi-dropdown > div {
   display: none;
+}
+.cbi-dropdown > .open,
+.cbi-dropdown > .more {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  padding: 0 8px;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+.cbi-dropdown img {
+  max-height: 1.6em;
+  width: auto;
+  flex-shrink: 0;
+}
+.cbi-dropdown > ul > li > form {
+  display: none;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+.cbi-dropdown > ul > li .hide-close {
+  display: none;
+}
+.cbi-dropdown > ul > li .hide-open {
+  display: initial;
+}
+.cbi-dropdown > ul > li img {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.cbi-dropdown[open] > ul.dropdown > li .hide-open {
+  display: none;
+}
+.cbi-dropdown[open] > ul.dropdown > li .hide-close {
+  display: initial;
+}
+.cbi-dropdown[open] > ul.dropdown > li > form {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: auto;
+}
+.cbi-dropdown[open] > ul.dropdown > li > form > input[type="checkbox"] {
+  margin: 2px 0 0;
+  flex-shrink: 0;
 }
 /* ---- Tabs (demo swatch pills) ---- */
 .cbi-tabmenu {
@@ -1565,11 +1686,11 @@ input[type="radio"] {
 #modal_overlay > .modal > .cbi-section,
 #modal_overlay > .modal > form > .cbi-section,
 #modal_overlay > .modal > .cbi-map > .cbi-section {
+  background: none;
+  border: none;
+  border-radius: 0;
   box-shadow: none;
   margin: 0 0 var(--space-lg);
-}
-#modal_overlay > .modal:has(.cbi-dropdown[open]) {
-  overflow: visible;
 }
 #modal_overlay > .modal.cbi-modal,
 #modal_overlay > .modal.uci-dialog {
@@ -1582,6 +1703,9 @@ body.modal-overlay-active #modal_overlay {
 }
 /* UCI Changes dialog */
 .uci-dialog .cbi-section {
+  background: none;
+  border: none;
+  border-radius: 0;
   box-shadow: none;
 }
 .uci-change-legend {
@@ -2002,13 +2126,21 @@ body.modal-overlay-active #modal_overlay {
 .cbi-section .ifacebox-body {
   padding: 8px 2px 0;
 }
-/* Port status grid */
+/* Port status grid — plain ink frames here, no hard shadows, with
+   comfortable inner padding (the section-level flatten above must
+   not win). */
 div[style*="display:grid;grid-template-columns:repeat"] {
   gap: var(--space-md) !important;
+  margin-top: var(--space-lg) !important;
   margin-bottom: var(--space-lg) !important;
 }
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
   margin: 0 !important;
+  min-width: 0;
   text-align: center;
 }
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-head {
@@ -2016,7 +2148,7 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
   font-size: 0.85rem;
 }
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body {
-  padding: 8px;
+  padding: 10px 8px 12px;
   font-size: 0.82rem;
 }
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body img {
@@ -2051,6 +2183,23 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
   width: 16px;
   height: 16px;
 }
+/* Large status badge (interface modal Status row) — roomy mini card
+   instead of a stretched capsule, text wraps inside. */
+.ifacebadge.large {
+  border-radius: var(--radius-md);
+  align-items: flex-start;
+  text-align: left;
+  max-width: 100%;
+  line-height: 1.5;
+}
+.ifacebadge.large img {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.ifacebadge.large span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .zonebadge {
   display: inline-block;
   padding: 3px 10px;
@@ -2064,6 +2213,12 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
 }
 .zonebadge[style*="background"] {
   filter: saturate(0.55) brightness(1.07);
+}
+/* ---- Firewall zones: compact action buttons so the grid fits the
+   card without sideways scrolling at desktop widths ---- */
+[data-page^="admin-network-firewall"] .table .tr td:last-child .cbi-button.btn,
+[data-page^="admin-network-firewall"] table.cbi-section-table tbody tr td:last-child .cbi-button.btn {
+  min-width: 0;
 }
 /* Ifaceboxes rendered inside grid table cells (Interfaces page) — flatten
    the nested card so it doesn't double-frame inside the table cell. */
@@ -2088,15 +2243,34 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
 .table .ifacebox-body {
   padding: 8px 2px 0;
 }
-/* Tooltips → doodle mini card */
+/* Tooltips → doodle mini card.
+   Hover info must sit on top of EVERYTHING: while a tooltip is open its
+   clipping ancestors (cards, scrollable tables, modals) release overflow
+   and the hovered card lifts above its siblings. */
 .cbi-tooltip-container {
   position: relative;
+}
+.cbi-section:has(> .cbi-tooltip-container:hover),
+.cbi-section:has(.cbi-section-node .cbi-tooltip-container:hover),
+.cbi-section:has(td .cbi-tooltip-container:hover),
+.table:has(.cbi-tooltip-container:hover),
+.modal:has(.cbi-tooltip-container:hover) {
+  overflow: visible;
+  z-index: var(--z-dropdown);
+}
+.cbi-tooltip-container:hover {
+  z-index: var(--z-toast);
 }
 .cbi-tooltip {
   display: none;
   position: absolute;
   z-index: var(--z-toast);
-  left: 0;
+  /* Origin model: the hovered inkbox middle is 0,0 — the overlay centers
+     on the vertical axis (x≈0) and hugs the horizontal axis (8px gap),
+     flipping below when the top has no room. footer.ut clamps it into
+     the viewport with a margin-left shift. */
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 100%;
   margin-bottom: 8px;
   background: var(--paper);
@@ -2109,10 +2283,18 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
   max-width: 300px;
   white-space: normal;
   line-height: 1.5;
+  /* Auto-placement (footer.ut flips this in when the default
+     above position would leave the viewport). */
 }
 .cbi-tooltip.left {
   left: auto;
   right: 0;
+  transform: none;
+}
+.cbi-tooltip.below {
+  top: 100%;
+  bottom: auto;
+  margin: 8px 0 0;
 }
 .cbi-tooltip-container:hover > .cbi-tooltip {
   display: block;
@@ -2364,4 +2546,270 @@ progress::-moz-progress-bar {
 }
 [data-page="admin-system-admin-sshkeys"] #maincontent > #view > div > .cbi-section-node {
   padding: 0 var(--space-xl);
+}
+/* ==========================================================================
+   Orphan-view fixes — views that render tables/forms without .cbi-section
+   (footer.ut wraps their bare tables in .cbi-section via JS; the rules
+   below dress the remaining custom structures as doodle cards)
+   ========================================================================== */
+/* ---- Firewall nftables: .nft-table → doodle card with strip header ---- */
+.nft-table {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+}
+.nft-table > h3 {
+  display: flex;
+  align-items: center;
+  font-size: 1.02rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--butter);
+  color: var(--on-pastel);
+  border-bottom: var(--stroke) solid var(--ink);
+}
+.nft-table:nth-of-type(3n + 2) > h3 {
+  background: var(--mint);
+}
+.nft-table:nth-of-type(3n + 3) > h3 {
+  background: var(--sky);
+}
+.nft-chain {
+  padding: var(--space-md) var(--space-xl) var(--space-xl);
+}
+.nft-chain + .nft-chain {
+  border-top: var(--stroke-thin) dashed var(--ink);
+}
+.nft-chain > h4 {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  background: var(--mint);
+  color: var(--on-pastel);
+  border: var(--stroke-thin) solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  box-shadow: var(--shadow-sm);
+  margin: var(--space-sm) 0 var(--space-md);
+}
+.nft-chain-hook {
+  margin-bottom: var(--space-md);
+}
+.nft-chain-hook ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nft-chain-hook li {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding: 3px 0;
+  margin: 0;
+}
+/* Rule tables live inside the .nft-table card: flat, inset, no double frame */
+.nft-table table.nft-rules {
+  margin: 0 0 var(--space-md);
+  width: 100%;
+}
+/* Wide tables (diagnostics address row…) scroll inside the card instead
+   of being sliced by the ink border. footer.ut inserts the scroller only
+   when the table actually overflows, so fitting tables keep stretching
+   full width. Corner clipping is kept by the card. */
+.cbi-section-table-wrap {
+  overflow: hidden;
+}
+.cbi-section-table-scroller {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.cbi-section-table-scroller > .table,
+.cbi-section-table-scroller > table.cbi-section-table {
+  margin: 0;
+  min-width: 100%;
+}
+/* ---- Startup page: tab panels + heading ---- */
+[data-page="admin-system-startup"] #maincontent > #view > div > h2 {
+  display: none;
+}
+[data-page="admin-system-startup"] div[data-tab] {
+  background: var(--paper);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+[data-page="admin-system-startup"] div[data-tab] > p:first-child {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1.5px dashed rgba(43, 35, 32, 0.25);
+}
+[data-page="admin-system-startup"] div[data-tab] textarea {
+  max-width: 100%;
+}
+/* ---- DHCP page: section intros live outside the ink box ---- */
+[data-page="admin-network-dhcp"] .cbi-section-descr.dhcp-outside {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+  border: none;
+}
+/* ---- Diagnostics page: action buttons + output ---- */
+[data-page="admin-network-diagnostics"] {
+  /* Three command columns share the card evenly and shrink to fit, so
+     nothing is sliced at the ink border. Narrow screens keep the
+     sideways-scroll fallback from .cbi-section-table-wrap. */
+}
+[data-page="admin-network-diagnostics"] .diag-action {
+  display: inline-flex;
+  gap: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+  flex-wrap: wrap;
+}
+[data-page="admin-network-diagnostics"] #command-output textarea {
+  font-family: var(--font-mono);
+  min-height: 160px;
+  max-width: none;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+[data-page="admin-network-diagnostics"] #command-output textarea:focus {
+  background: transparent;
+  box-shadow: none;
+}
+@media (min-width: 901px) {
+  [data-page="admin-network-diagnostics"] {
+    /* Address field on its own line so the action button always drops
+       below instead of squeezing past the cell edge. */
+  }
+  [data-page="admin-network-diagnostics"] .cbi-section-table-wrap > .table {
+    display: table;
+    table-layout: fixed;
+    width: calc(100% - var(--space-xl) * 2);
+    margin: 0 var(--space-xl) var(--space-lg);
+    overflow: visible;
+  }
+  [data-page="admin-network-diagnostics"] .cbi-section-table-wrap td > input {
+    display: block;
+  }
+  [data-page="admin-network-diagnostics"] .cbi-section-table-wrap .cbi-dropdown {
+    min-width: 0;
+  }
+}
+/* ---- Software page extras: labels, pager, checkboxes, spinners ---- */
+.label {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border: 2px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--shadow-col);
+  white-space: nowrap;
+}
+.label.warning {
+  background: var(--butter);
+  color: var(--on-pastel);
+}
+.label.notice,
+.label.info {
+  background: var(--sky);
+  color: var(--on-pastel);
+}
+.label.success {
+  background: var(--mint);
+  color: var(--on-pastel);
+}
+.label.important,
+.label.danger,
+.label.error {
+  background: var(--coral);
+  color: var(--on-pastel);
+}
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: var(--space-lg) 0;
+}
+.pager .text {
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+.button-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: var(--space-md) 0;
+}
+label.cbi-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+/* Inline loading indicator (e.g. package-manager modals).
+   The full-page #view > .spinning card rule still wins for the view loader. */
+p.spinning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+p.spinning::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 3px solid var(--paper-2);
+  border-top-color: var(--pink-deep);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+.deps {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.errors {
+  color: #d14f3c;
+  font-weight: 700;
+}
+.cbi-tab-disabled {
+  opacity: 0.5;
+}
+.table .col-1 {
+  white-space: nowrap;
+}
+/* Empty-state emphasis inside table cells */
+.table .td > em:only-child,
+table.cbi-section-table tbody tr td > em:only-child {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.td.middle {
+  vertical-align: middle;
 }
