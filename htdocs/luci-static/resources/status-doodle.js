@@ -85,7 +85,7 @@ return baseclass.extend({
 		this.container.appendChild(this.uptimeEl);
 
 		this.fetchAndUpdate();
-		setInterval(L.bind(this.fetchAndUpdate, this), 5000);
+		setInterval(L.bind(this.fetchAndUpdate, this), 1000);
 	},
 
 	fetchAndUpdate: function() {
