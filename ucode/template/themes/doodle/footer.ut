@@ -64,6 +64,35 @@
     if (!content) return;
 
     function processContent() {
+      /* Pastel cycle assignment (authoritative): :nth-of-type counts div
+         element type, not section order, so CSS-only cycling stuck every
+         header on butter. Number top-level cards in DOM order instead. */
+      (function assignCycles() {
+        var sections = content.querySelectorAll(
+          ':scope > .cbi-section, :scope > #view > .cbi-section, #view > .cbi-section, #maincontent > .cbi-section'
+        );
+        // Fallback: any top-level section directly under view/maincontent.
+        if (!sections.length)
+          sections = content.querySelectorAll('.cbi-section');
+        var idx = 0;
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          // Only cycle outermost cards, not nested flattened ones.
+          if (s.parentElement && s.parentElement.closest &&
+              s.parentElement.closest('.cbi-section') &&
+              !s.classList.contains('cbi-section-table-wrap'))
+            continue;
+          s.classList.remove('cycle-0', 'cycle-1', 'cycle-2');
+          s.classList.add('cycle-' + (idx % 3));
+          idx++;
+        }
+        var nfts = content.querySelectorAll('.nft-table');
+        for (var n = 0; n < nfts.length; n++) {
+          nfts[n].classList.remove('cycle-0', 'cycle-1', 'cycle-2');
+          nfts[n].classList.add('cycle-' + (n % 3));
+        }
+      })();
+
       /* DHCP/DNS page: long section introductions read better as page
          text above the card instead of boxed inside it. The form renderer
          shuffles nodes while building, so on every pass lift any intro
@@ -159,13 +188,23 @@
       }
 
       /* Move top-level CBI tabmenus into sub-nav bar.
-         Skip if renderTabMenu already populated header-sub (menu-tree tabs).
-         Nested tabmenus (e.g. DNS Records sub-tabs inside a tab panel)
-         stay in-content so they don't get mixed with top-level tabs. */
+         Coexists with menu-tree tabs via data-source: each producer owns
+         only its own tabs so async menu load can't wipe CBI tabs or
+         vice versa (previously innerHTML='' caused flicker/loss). */
       if (!headerSub) return;
-      if (headerSub.querySelector('.sub-tab')) return; /* Already has menu-tree tabs */
       var allTabmenus = content.querySelectorAll('.cbi-tabmenu');
-      if (allTabmenus.length === 0) return;
+      if (allTabmenus.length === 0) {
+        // No CBI tabs: leave menu-tree tabs alone, drop stale CBI ones.
+        var stale = headerSub.querySelectorAll('.sub-tab[data-source="cbi"]');
+        for (var si = 0; si < stale.length; si++) stale[si].remove();
+        if (!headerSub.querySelector('.sub-tab')) {
+          headerSub.classList.remove('active');
+          document.body.classList.remove('has-sub-nav');
+        }
+        return;
+      }
+      // Menu-tree tabs present: don't touch them, only manage CBI ones.
+      if (headerSub.querySelector('.sub-tab[data-source="menu"]')) return;
 
       /* Only move the first CBI tabmenu to sub-nav.
          Any deeper tabmenus (e.g. DNS Records sub-tabs, dnsmasq section tabs)
@@ -176,10 +215,11 @@
       /* Skip rebuild if we're in the middle of a tab click */
       if (headerSub._switching) return;
 
-      /* Clear existing sub-tabs to prevent duplicates on re-render (Save & Apply) */
-      headerSub.innerHTML = '';
-      headerSub.classList.remove('active');
-      document.body.classList.remove('has-sub-nav');
+      /* Clear only our own CBI sub-tabs to prevent duplicates on
+         re-render (Save & Apply); menu tabs (if any) are preserved. */
+      var oldCbi = headerSub.querySelectorAll('.sub-tab[data-source="cbi"]');
+      for (var oi = 0; oi < oldCbi.length; oi++) oldCbi[oi].remove();
+      if (headerSub.querySelector('.sub-tab')) return; /* menu tabs won */
 
       topTabmenus.forEach(function(ul) {
         var items = ul.querySelectorAll('li');
@@ -190,6 +230,7 @@
           if (li.style.display === 'none') return;
           var tab = a.cloneNode(true);
           tab.className = 'sub-tab' + (li.classList.contains('cbi-tab') ? ' active' : '');
+          tab.setAttribute('data-source', 'cbi');
           tab.addEventListener('click', function(ev) {
             ev.preventDefault();
             /* Guard: prevent MutationObserver from rebuilding during tab switch */
@@ -212,8 +253,17 @@
     }
 
     processContent();
+    /* Throttle observer: LuCI polls mutate content every second — running
+       full table scans synchronously each time caused flicker + layout
+       thrash. Coalesce via rAF. */
+    var scheduled = false;
     new MutationObserver(function() {
-      processContent();
+      if (scheduled) return;
+      scheduled = true;
+      (window.requestAnimationFrame || window.setTimeout)(function() {
+        scheduled = false;
+        processContent();
+      });
     }).observe(content, { childList: true, subtree: true });
   })();
 
@@ -242,7 +292,12 @@
 
     function place(container, mx, my) {
       var tip = container.querySelector(':scope > .cbi-tooltip');
-      if (!tip || tip.classList.contains('left')) return;
+      if (!tip) return;
+      /* Unified model: every tooltip is mouse-pinned (fixed) when JS runs,
+         including .left edge cases — previously .left early-returned to
+         CSS right:0 while others pinned to the cursor, so identical hovers
+         appeared in different places. CSS absolute centering remains only
+         as the no-JS fallback (cleared here via inline fixed styles). */
       var vw = window.innerWidth, vh = window.innerHeight;
       var goRight = mx < vw / 2;
       var goDown = my < vh / 2;

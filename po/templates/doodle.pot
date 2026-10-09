@@ -66,7 +66,7 @@ msgid "Login"
 msgstr ""
 
 #: htdocs/luci-static/resources/view/system/doodle.js
-msgid "No background set. Upload an image or video named \"bg\" (e.g. bg.jpg, bg.png, bg.mp4) to /www/luci-static/doodle/background/ via SCP."
+msgid "No background set. Use the upload button below."
 msgstr ""
 
 #: ucode/template/themes/doodle/header.ut
@@ -139,4 +139,68 @@ msgstr ""
 
 #: ucode/template/themes/doodle/header.ut
 msgid "Go to password configuration..."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Device name"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Display name shown in the sidebar brand and on the login page. Leave empty to use the system hostname."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "System hostname"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Upload background"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Choose an image (JPG, PNG, GIF, WebP) or video (MP4, WebM) from this computer. It replaces the current background immediately — no save needed."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Choose file…"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Unsupported file type. Use JPG, PNG, GIF, WebP, MP4 or WebM."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Background updated to "
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "move failed"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Could not install background: "
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Remove background"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Delete the custom background and return to the default dotted paper. Takes effect immediately."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Remove"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "No custom background to remove."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Background removed."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/system/doodle.js
+msgid "Could not remove background: "
 msgstr ""

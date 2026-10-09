@@ -65,6 +65,8 @@
     font-size: 1.25rem;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
     color: var(--ink);
   }
 }
@@ -199,23 +201,25 @@
   }
 }
 
-/* Pastel icon circles cycle like the demo */
-.nav-group .nav-item:nth-child(6n + 2) .nav-icon {
-  background: var(--sky);
-}
-.nav-group .nav-item:nth-child(6n + 3) .nav-icon {
-  background: var(--mint);
-}
-.nav-group .nav-item:nth-child(6n + 4) .nav-icon {
+/* Pastel icon circles cycle like the demo.
+   NOTE: assigned via JS cycle-0..5 classes in menu-doodle.js (nth-child
+   miscounts when .nav-sub divs interleave with .nav-item anchors). */
+.nav-group .nav-item.cycle-0 .nav-icon {
   background: var(--butter);
 }
-.nav-group .nav-item:nth-child(6n + 5) .nav-icon {
+.nav-group .nav-item.cycle-1 .nav-icon {
+  background: var(--sky);
+}
+.nav-group .nav-item.cycle-2 .nav-icon {
+  background: var(--mint);
+}
+.nav-group .nav-item.cycle-3 .nav-icon {
   background: var(--lav);
 }
-.nav-group .nav-item:nth-child(6n + 6) .nav-icon {
+.nav-group .nav-item.cycle-4 .nav-icon {
   background: var(--pink);
 }
-.nav-group .nav-item:nth-child(6n + 7) .nav-icon {
+.nav-group .nav-item.cycle-5 .nav-icon {
   background: var(--peach);
 }
 
@@ -253,6 +257,22 @@
   align-items: center;
   position: relative;
   gap: 6px;
+  min-width: 0;
+  flex-shrink: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+#header-nav {
+  flex-shrink: 1;
+}
+
+#header-tabs:empty {
+  display: none;
 }
 
 .header-title {
@@ -260,11 +280,16 @@
   font-weight: 800;
   color: var(--ink);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 32vw;
+  flex-shrink: 0;
   padding: 6px 14px;
   background: var(--paper-2);
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  /* No hard shadow: the 3px offset drops onto the header's own thick
+     bottom border and the two inks merge, slicing the pill. Flat here. */
   &:empty {
     display: none;
   }
@@ -279,6 +304,7 @@
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
   border: 2.5px solid transparent;
   transition:
     transform 0.1s ease,
@@ -290,9 +316,10 @@
   }
 
   &.active {
-    background: var(--butter);
+    background: var(--color-primary);
     border-color: var(--ink);
-    box-shadow: var(--shadow-sm);
+    /* Flat like the title pill — offset shadow would merge with the
+       header's bottom border. */
   }
 }
 
@@ -301,12 +328,15 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
   gap: 8px;
   padding: 6px 14px;
   background: var(--paper-2);
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  /* Flat: lives inside the header bar, same reason as above. */
 
   &:empty {
     display: none;
@@ -315,6 +345,7 @@
   [data-indicator] {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     gap: 5px;
     font-size: 0.8rem;
     font-weight: 700;
@@ -353,13 +384,38 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 
   &:empty {
     display: none;
   }
+
+  /* LuCI core change indicator / spinners arrive as bare text — dress
+     them as doodle mini-pills so "Refreshing" doesn't float raw.
+     Flat (no offset shadow) like every other header-bar pill. */
+  > span,
+  > a,
+  > .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--paper-2);
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    padding: 3px 12px;
+  }
+
+  > a:hover {
+    transform: translate(-1px, -1px);
+  }
 }
 
-/* Mobile hamburger (doodle butter square) */
+/* Mobile hamburger (doodle butter square). Flat: 42px tall in a 64px bar,
+   its offset shadow would land on the header's bottom border. */
 .menu-toggle {
   display: none;
   background: var(--butter);
@@ -371,7 +427,6 @@
   justify-content: center;
   cursor: pointer;
   color: var(--on-pastel);
-  box-shadow: var(--shadow-sm);
 
   svg {
     width: 22px;
@@ -413,6 +468,7 @@
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   border: 2.5px solid transparent;
   transition:
@@ -425,10 +481,10 @@
   }
 
   &.active {
-    background: var(--sky);
+    background: var(--color-primary);
     color: var(--on-pastel);
     border-color: var(--ink);
-    box-shadow: var(--shadow-sm);
+    /* Flat: the sub-bar has the same thick bottom border as the header. */
   }
 }
 
@@ -436,7 +492,9 @@
    NOTE: fill mode is backwards (not both): the finished state equals the
    natural styles, and a retained fill would leave a permanent transform
    behind — turning every animated wrapper into a stacking context that
-   traps dropdown/tooltip z-indexes underneath later siblings. */
+   traps dropdown/tooltip z-indexes underneath later siblings.
+   Only #content-wrap animates once per page load: animating #view children
+   re-triggered on every MutationObserver/poll update causing flicker. */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -454,11 +512,10 @@
   margin-top: var(--header-height);
   min-height: calc(100vh - var(--header-height));
   padding: var(--content-padding);
-  animation: page-enter 0.25s ease backwards;
 }
 
-#view > :not(.spinning) {
-  animation: page-enter 0.22s ease backwards;
+body:not(.no-page-anim) #content-wrap {
+  animation: page-enter 0.25s ease backwards;
 }
 
 #view > .spinning {
@@ -491,14 +548,17 @@ body.has-sub-nav #content-wrap {
   margin: 0 auto;
 }
 
-/* Mobile overlay */
+/* Mobile overlay — covers content area only (starts below header) so the
+   bright header + hamburger stay intentionally interactive while the page
+   behind dims. Previously top:0 dimmed content+subnav but not header,
+   reading as a half-applied dim. */
 .sidebar-overlay {
   display: none;
   position: fixed;
-  top: 0;
+  top: var(--header-height);
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - var(--header-height));
   background: rgba(43, 35, 32, 0.35);
   z-index: calc(var(--z-sidebar) - 1);
   opacity: 0;
@@ -508,6 +568,15 @@ body.has-sub-nav #content-wrap {
     display: block;
     opacity: 1;
   }
+}
+
+/* Sidebar loading placeholder (replaced by menu-doodle.js) */
+.sidebar-nav .nav-loading {
+  padding: 16px 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  text-align: center;
 }
 
 /* ---- Page title ---- */

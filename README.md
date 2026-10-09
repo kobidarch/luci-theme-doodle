@@ -4,7 +4,7 @@ A pastel doodle theme for OpenWrt LuCI — opaque paper cards, thick ink
 borders, hard offset shadows.
 
 ![OpenWrt](https://img.shields.io/badge/OpenWrt-23.05%2B-brightgreen.svg)
-![Version](https://img.shields.io/badge/version-1.1.5-orange.svg)
+![Version](https://img.shields.io/badge/version-1.1.6-orange.svg)
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 
 ## Screenshots
@@ -30,10 +30,6 @@ echo "src/gz doodle https://kobidarch.github.io/luci-theme-doodle/packages" >> /
 opkg update && opkg install luci-theme-doodle
 
 # apk (25.12+)
-# one-time: trust the feed signing key
-wget -O /etc/apk/keys/doodle-apk.pem \
-  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/apk/keys/doodle-apk.pem
-
 echo "https://kobidarch.github.io/luci-theme-doodle/apk/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 apk update && apk add luci-theme-doodle
 ```
@@ -49,10 +45,11 @@ Then pick **Doodle** under **System → System → Language and Style**.
 | `primary` | `#ff8fac` | Accent color |
 | `status_bar` | `1` | `1` shows live stats in the header, `0` hides them |
 | `font_size` | `14` | Base font size in px (`13`, `14`, `16`, `18`) |
+| `device_name` | `` (empty) | Display name in the sidebar and on the login page (empty = system hostname) |
 | `speed_unit` | `bits` | Throughput unit (`bits` = Mbps, `bytes` = MB/s) |
 
-Light only. Drop a `bg.*` file into
-`htdocs/luci-static/doodle/background/` for a custom backdrop.
+Light only. Use **Upload background** under **System → Doodle Theme Config → Background** (or drop a `bg.*` file into
+`htdocs/luci-static/doodle/background/`).
 
 ## Develop
 

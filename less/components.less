@@ -35,7 +35,7 @@
   padding: 0 var(--space-xl);
 }
 
-.cbi-section > div:last-child {
+.cbi-section > div:last-child:not(.cbi-section-table-scroller):not(.cbi-section-create) {
   padding-bottom: var(--space-xl);
 }
 
@@ -62,11 +62,14 @@
   border-bottom: var(--stroke) solid var(--ink);
 }
 
-/* Cycle pastel section headers */
-.cbi-section:nth-of-type(3n + 2) > h3 {
+/* Cycle pastel section headers.
+   NOTE: assigned via JS .cycle-0/1/2 in footer.ut — :nth-of-type counts
+   element type (div), not .cbi-section order, so pure CSS cycling stuck
+   every header on butter (see overview screenshot). */
+.cbi-section.cycle-1 > h3 {
   background: var(--mint);
 }
-.cbi-section:nth-of-type(3n + 3) > h3 {
+.cbi-section.cycle-2 > h3 {
   background: var(--sky);
 }
 
@@ -97,10 +100,17 @@
 /* Head strips escape their padded wrappers so every heading spans the
    full card width: node-level titles pull past node padding, and sections
    nested in value rows (e.g. Backup/Restore/Flash subsections) pull past
-   both node padding and row margins. No more half-filled headers. */
+   both node padding and row margins. No more half-filled headers.
+   Mid-card strips get a top ink rule so square edges read as intentional
+   dividers inside the rounded card instead of harsh cuts. */
 .cbi-section-node > h3 {
   margin-left: calc(-1 * var(--space-xl));
   margin-right: calc(-1 * var(--space-xl));
+  border-radius: 0;
+
+  &:not(:first-child) {
+    border-top: var(--stroke) solid var(--ink);
+  }
 }
 
 /* Sections nested in value rows sit behind BOTH node padding and row
@@ -215,10 +225,10 @@
   border-bottom: var(--stroke) solid var(--ink);
 }
 
-.cbi-section:not(.fade-in):nth-of-type(3n + 2) > .cbi-title > h3 {
+.cbi-section:not(.fade-in).cycle-1 > .cbi-title > h3 {
   background: var(--mint);
 }
-.cbi-section:not(.fade-in):nth-of-type(3n + 3) > .cbi-title > h3 {
+.cbi-section:not(.fade-in).cycle-2 > .cbi-title > h3 {
   background: var(--sky);
 }
 
@@ -349,11 +359,12 @@ select {
   white-space: nowrap;
   gap: 6px;
 
-  &:disabled {
+  &:disabled,
+  &[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 }
 
@@ -567,14 +578,13 @@ table.cbi-section-table {
 }
 
 /* Tables whose body has an actions column but whose header doesn't
-   (e.g. repokeys TableSection): stretch the butter header strip over it */
+   (e.g. repokeys TableSection): paint the thead row itself butter so the
+   strip spans full width without a zero-width ::after fake cell that
+   misaligned header/body columns. */
 .table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions))
   thead
-  tr::after {
-  content: "";
-  display: table-cell;
+  tr {
   background: var(--butter);
-  border-bottom: var(--stroke) solid var(--ink);
 }
 
 /* ---- CBI Dynamic List ---- */
@@ -584,12 +594,14 @@ table.cbi-section-table {
   min-height: 30px;
   cursor: text;
   gap: 10px;
+  max-width: 100%;
 
   > .item {
     display: inline-flex;
     flex-wrap: nowrap;
     position: relative;
-    max-width: 25rem;
+    max-width: 100%;
+    width: min(25rem, 100%);
     pointer-events: none;
     color: var(--ink);
     outline: 0;
@@ -601,6 +613,7 @@ table.cbi-section-table {
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       width: 2.5rem !important;
       height: 2.5rem;
       margin: 0;
@@ -618,8 +631,10 @@ table.cbi-section-table {
       display: block;
       padding: 0.5rem 0.75rem;
       box-sizing: border-box;
-      min-width: 15.5rem;
-      width: 15.5rem;
+      flex: 1 1 auto;
+      min-width: 0;
+      width: auto;
+      max-width: calc(100% - 2.5rem);
       height: 2.5rem;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -637,16 +652,19 @@ table.cbi-section-table {
     display: inline-flex;
     align-items: center;
     width: 100%;
-    min-width: 15.5rem;
-    flex-wrap: nowrap;
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
     gap: 10px;
 
     input {
       display: block;
       padding: 0.5rem 0.75rem;
       box-sizing: border-box;
-      min-width: 15.5rem;
-      width: 15.5rem;
+      flex: 1 1 10rem;
+      min-width: 0;
+      width: auto;
+      max-width: 100%;
       font-size: 0.85rem;
       line-height: 1.5rem;
       color: var(--ink);
@@ -656,6 +674,7 @@ table.cbi-section-table {
     }
 
     .cbi-button-add {
+      flex-shrink: 0;
       width: 2.5rem !important;
       padding: 0.5rem 0 !important;
       font-size: 1.2rem;
@@ -870,7 +889,7 @@ table.cbi-section-table {
     }
 
     &.cbi-tab a {
-      background: var(--lav);
+      background: var(--color-primary);
       color: var(--on-pastel);
       border-color: var(--ink);
       box-shadow: var(--shadow-sm);
@@ -929,7 +948,7 @@ table.cbi-section-table {
 /* ---- Progress bars (demo .bar-track) ---- */
 .cbi-progressbar {
   position: relative;
-  height: 14px;
+  height: 18px;
   background: var(--paper-2);
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
@@ -937,24 +956,30 @@ table.cbi-section-table {
 
   > div {
     height: 100%;
-    border-right: var(--stroke-thin) solid var(--ink);
     transition: width var(--transition-normal);
     background: var(--sky-deep);
+    /* No border-right: at 0% width it rendered as a stray ink tick
+       (Buffered row in overview screenshot). Container border is enough. */
   }
 
   &::after {
     content: attr(title);
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-block;
+    max-width: calc(100% - 8px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 0.72rem;
     font-weight: 800;
     color: var(--ink);
+    background: rgba(255, 253, 249, 0.88);
+    border-radius: 999px;
+    padding: 0 8px;
+    line-height: 1.5;
   }
 }
 
@@ -983,9 +1008,9 @@ input[type="radio"] {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
     padding: var(--space-2xl);
-    max-width: 600px;
-    min-width: 270px;
-    width: calc(100% - var(--space-2xl) * 2);
+    max-width: min(600px, calc(100vw - 32px));
+    min-width: min(270px, calc(100vw - 32px));
+    width: min(600px, calc(100% - 32px));
     max-height: calc(100vh - 4em);
     overflow-y: auto;
     z-index: calc(var(--z-modal) + 1);
@@ -1003,7 +1028,12 @@ input[type="radio"] {
 
   > .modal.cbi-modal,
   > .modal.uci-dialog {
-    max-width: 900px;
+    /* Wide config modals (wireless/radio/interface editors) use the full
+       900px on desktop instead of the 600px base width — the base width
+       previously still applied, cramming tabbed content into a narrow
+       column with both horizontal and vertical scrollbars. */
+    max-width: min(900px, calc(100vw - 32px));
+    width: min(900px, calc(100% - 32px));
   }
 }
 

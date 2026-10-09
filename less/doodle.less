@@ -43,7 +43,8 @@
   }
 }
 
-/* Doodle input */
+/* Doodle input — focus uses accent border + ring so keyboard users can
+   actually see it (previously ink-on-ink + near-identical paper shade). */
 .doodle-input() {
   width: 100%;
   border: var(--stroke-thin) solid var(--ink);
@@ -54,8 +55,8 @@
   font-size: 0.85rem;
   outline: none;
   &:focus {
-    border-color: var(--ink);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--color-primary-active);
+    box-shadow: var(--shadow-sm), 0 0 0 3px color-mix(in srgb, var(--color-primary) 35%, transparent);
     background: var(--paper);
   }
 }

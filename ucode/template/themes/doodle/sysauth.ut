@@ -1,12 +1,42 @@
 {# luci-theme-doodle — Login page (self-contained doodle, light only) #}
 {%
-  import { readfile } from 'fs';
+  import { readfile, access } from 'fs';
+  import { cursor } from 'uci';
 
   const doodle_version = trim(readfile('/usr/share/ucode/luci/template/themes/doodle/version')) ?? '?';
   const boardinfo = ubus.call('system', 'board');
   const hostname = striptags(boardinfo?.hostname ?? 'OpenWrt');
 
   http.prepare_content('text/html; charset=UTF-8');
+
+  /* Display brand: custom device name wins, else system hostname. */
+  let doodle_device_name = '';
+  if (access('/etc/config/doodle')) {
+    let _cfg = cursor();
+    doodle_device_name = trim(_cfg.get_first('doodle', 'global', 'device_name') ?? '') ?? '';
+  }
+  const display_name = (doodle_device_name != '') ? striptags(doodle_device_name) : hostname;
+
+  let doodle_bg_img = null;
+  let doodle_bg_vid = null;
+  let doodle_img_exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+  for (let bi = 0; bi < length(doodle_img_exts); bi++) {
+    let ext = doodle_img_exts[bi];
+    if (access('/www/luci-static/doodle/background/bg.' + ext)) {
+      doodle_bg_img = 'bg.' + ext;
+      break;
+    }
+  }
+  if (!doodle_bg_img) {
+    let doodle_vid_exts = ['mp4', 'webm'];
+    for (let vi = 0; vi < length(doodle_vid_exts); vi++) {
+      let vext = doodle_vid_exts[vi];
+      if (access('/www/luci-static/doodle/background/bg.' + vext)) {
+        doodle_bg_vid = 'bg.' + vext;
+        break;
+      }
+    }
+  }
 -%}
 <!DOCTYPE html>
 <html lang="{{ dispatcher.lang }}" data-theme="light">
@@ -14,18 +44,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#fdf6ee">
-  <title>{{ _('Login') }} - {{ hostname }} - LuCI</title>
+  <title>{{ _('Login') }} - {{ display_name }} - LuCI</title>
   <link rel="icon" href="{{ media }}/img/doodle-logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{{ media }}/css/cascade.css">
 </head>
 <body class="lang_{{ dispatcher.lang }}">
 
-<div id="bg-wrap"></div>
+<div id="bg-wrap">{% if (doodle_bg_img): %}<img src="{{ media }}/background/{{ doodle_bg_img }}" alt="">{% endif %}{% if (doodle_bg_vid): %}<video src="{{ media }}/background/{{ doodle_bg_vid }}" autoplay muted loop playsinline></video>{% endif %}</div>
 
 <div class="login-wrap">
   <div class="login-card">
     <img class="login-logo" src="{{ media }}/img/doodle-logo.svg" alt="Logo">
-    <h1 class="login-title">{{ hostname }}</h1>
+    <h1 class="login-title">{{ display_name }}</h1>
     <p class="login-subtitle">{{ _('Sign in to continue') }}</p>
     <p class="login-version">DoodleTheme v{{ doodle_version }}</p>
 
@@ -51,12 +81,20 @@
 
       <input type="submit" class="login-btn" value="{{ _('Log in') }}">
     </form>
+
+    <p class="login-repo"><a href="https://github.com/kobidarch/luci-theme-doodle" target="_blank" rel="noreferrer">kobidarch/luci-theme-doodle</a></p>
   </div>
 </div>
 
 <script>
-  var pw = document.getElementById('luci_password');
-  if (pw) pw.focus();
+  (function() {
+    var user = document.getElementById('luci_username');
+    var pw = document.getElementById('luci_password');
+    // Focus username when empty, else password — previously always
+    // password, so first-visit users had to click back to username.
+    if (user && !user.value) user.focus();
+    else if (pw) pw.focus();
+  })();
 </script>
 
 </body>

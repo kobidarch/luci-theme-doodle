@@ -108,14 +108,18 @@
 }
 
 /* Port status grid — plain ink frames here, no hard shadows, with
-   comfortable inner padding (the section-level flatten above must
-   not win). */
+   comfortable inner padding. Specificity (0,3,1) beats the section-level
+   flatten above (0,2,0) so grid boxes keep their cards even inside a
+   .cbi-section. Previously 0,1,1 lost and ports rendered borderless. */
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"],
 div[style*="display:grid;grid-template-columns:repeat"] {
   gap: var(--space-md) !important;
   margin-top: var(--space-lg) !important;
   margin-bottom: var(--space-lg) !important;
+}
 
-  > .ifacebox {
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox,
+div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox {
     background: var(--paper);
     border: var(--stroke) solid var(--ink);
     border-radius: var(--radius-lg);
@@ -127,6 +131,15 @@ div[style*="display:grid;grid-template-columns:repeat"] {
     > .ifacebox-head {
       padding: 8px;
       font-size: 0.85rem;
+      align-self: stretch;
+      border: none;
+      border-bottom: var(--stroke) solid var(--ink);
+      border-radius: 0;
+    }
+
+    > .ifacebox-head:first-child {
+      border-radius: calc(var(--radius-lg) - var(--stroke))
+        calc(var(--radius-lg) - var(--stroke)) 0 0;
     }
 
     > .ifacebox-body {
@@ -140,7 +153,6 @@ div[style*="display:grid;grid-template-columns:repeat"] {
       }
     }
   }
-}
 
 /* Network status table */
 .network-status-table {
@@ -154,7 +166,10 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   }
 }
 
-/* Badges → doodle tagpills */
+/* Badges → doodle tagpills.
+   Clamped: long SSIDs / ifnames / signal strings (wireless assoc + scan
+   tables) truncate with ellipsis inside the pill instead of bursting past
+   the ink border. .large keeps wrapping (mini-card, see below). */
 .ifacebadge {
   display: inline-flex;
   align-items: center;
@@ -166,10 +181,48 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   font-size: 0.78rem;
   font-weight: 800;
   box-shadow: 2px 2px 0 var(--shadow-col);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 
   img {
     width: 16px;
     height: 16px;
+    flex-shrink: 0;
+  }
+
+  > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Signal badges (wireless status/scan/assoc): render_signal_badge emits
+   div.ifacebadge OR div.center, both carrying [data-signal] — clamp both
+   variants. The .center form previously escaped the pill clamp above, and
+   its value uses non-breaking spaces (dBm/rate strings) that can't wrap,
+   so it slid straight past the ink. Full values stay on title for hover. */
+div[data-signal] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+  box-sizing: border-box;
+
+  img {
+    flex-shrink: 0;
+  }
+
+  > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -202,6 +255,9 @@ div[style*="display:grid;grid-template-columns:repeat"] {
   border: 2px solid var(--ink);
   background: var(--lav);
   color: var(--on-pastel);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
 
   /* Zone-colored badge (inline style) — pastel-ify to fit doodle */
   &[style*="background"] {
@@ -353,7 +409,7 @@ div > .ifacebox:first-child .cbi-tooltip {
   overflow-y: auto;
   width: 100%;
   white-space: pre-wrap;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 pre {
@@ -610,16 +666,23 @@ progress {
     border-bottom: var(--stroke) solid var(--ink);
   }
 
-  &:nth-of-type(3n + 2) > h3 {
+  &:nth-of-type(3n + 2) > h3,
+  &.cycle-1 > h3 {
     background: var(--mint);
   }
-  &:nth-of-type(3n + 3) > h3 {
+  &:nth-of-type(3n + 3) > h3,
+  &.cycle-2 > h3 {
     background: var(--sky);
   }
+  /* JS .cycle-* classes (footer.ut) are authoritative; nth-of-type kept
+     as no-JS fallback. */
 }
 
 .nft-chain {
-  padding: var(--space-md) var(--space-xl) var(--space-xl);
+  /* Even outer rhythm (16 top / 24 sides+bottom); inner gaps are a flat
+     12px. Previously 12/24/24 + h4 top 8 + hook 12 + table 12 stacked
+     bottom-heavy, and core's .25em !important cells looked lost inside. */
+  padding: var(--space-lg) var(--space-xl) var(--space-xl);
 
   + .nft-chain {
     border-top: var(--stroke-thin) dashed var(--ink);
@@ -635,7 +698,7 @@ progress {
     border-radius: var(--radius-sm);
     padding: 6px 12px;
     box-shadow: var(--shadow-sm);
-    margin: var(--space-sm) 0 var(--space-md);
+    margin: 0 0 var(--space-md);
   }
 }
 
@@ -657,10 +720,26 @@ progress {
   }
 }
 
-/* Rule tables live inside the .nft-table card: flat, inset, no double frame */
+/* Rule tables live inside the .nft-table card: flat, inset, no double frame.
+   Spacing via margin-top between siblings so the last table sits flush on
+   the chain padding (previously every table added margin-bottom, doubling
+   the bottom gap). Cell padding matches theme tables — core forces
+   .25em !important, so the override needs !important too. */
 .nft-table table.nft-rules {
-  margin: 0 0 var(--space-md);
+  margin: 0;
   width: 100%;
+
+  + table.nft-rules {
+    margin-top: var(--space-md);
+  }
+
+  tr > td {
+    padding: 8px 12px !important;
+  }
+
+  tr:last-child > td {
+    padding-bottom: 16px !important;
+  }
 }
 
 /* Wide tables (diagnostics address row…) scroll inside the card instead
@@ -736,16 +815,8 @@ progress {
     font-family: var(--font-mono);
     min-height: 160px;
     max-width: none;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
-
-    &:focus {
-      background: transparent;
-      box-shadow: none;
-    }
+    /* Keep doodle input framing so output doesn't float as raw borderless
+       text (previously border:none/transparent). */
   }
 
   /* Three command columns share the card evenly and shrink to fit, so
@@ -784,6 +855,11 @@ progress {
   color: var(--ink);
   box-shadow: 2px 2px 0 var(--shadow-col);
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  box-sizing: border-box;
 
   &.warning {
     background: var(--butter);
@@ -886,4 +962,68 @@ table.cbi-section-table tbody tr td > em:only-child {
 
 .td.middle {
   vertical-align: middle;
+}
+
+/* ---- Overflow guards: long tokens (SSIDs, BSSIDs, encryption strings,
+   wifirate details, hostnames) must wrap or truncate instead of bursting
+   past ink borders. Worst on wireless scan/assoc tables, but applied
+   globally since firewall/DHCP/software tables hit the same. ---- */
+
+/* In-content table cells wrap long tokens. Action columns keep nowrap so
+   button groups stay on one line (mobile already unwraps them). */
+.table td,
+.table .td,
+table.cbi-section-table tbody tr td {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.table td:last-child:has(.cbi-button),
+.table .td:last-child:has(.cbi-button),
+table.cbi-section-table tbody tr td:last-child:has(.cbi-button) {
+  overflow-wrap: normal;
+}
+
+/* Badges inside cells never exceed the cell. */
+.table td > .ifacebadge,
+.table .td > .ifacebadge,
+.table td > .label,
+.table .td > .label {
+  max-width: 100%;
+}
+
+/* Modals never get scroller wrappers (footer.ut skips .modal), so modal
+   tables wrap instead: scan results (SSID/BSSID/encryption/rate) fit the
+   90% scan modal instead of slicing through its ink frame. */
+.modal .table th,
+.modal table.cbi-section-table thead th,
+.modal .table .th {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.modal .table td,
+.modal .table .td,
+.modal table.cbi-section-table tbody tr td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* Form values + descriptions wrap long tokens (hostnames, paths, keys). */
+.cbi-value-field,
+.cbi-value-description {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* Catch-all: bare text LuCI renders without wrappers (wireless itemlist
+   SSID/BSSID/encryption/mode status lines, host hints, scan spans) inherits
+   wrapping so unbroken 32-char tokens can't burst the ink. Explicit
+   white-space:nowrap rules (pills, th, buttons) still win where set, and
+   pills truncate via their own ellipsis guards above. */
+.cbi-section,
+.modal,
+.cbi-dropdown ul.dropdown {
+  overflow-wrap: anywhere;
 }

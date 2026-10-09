@@ -301,7 +301,8 @@ return baseclass.extend({
     var h = Math.floor((s % 86400) / 3600);
     var m = Math.floor((s % 3600) / 60);
     if (d > 0) return d + "d " + h + "h";
-    return h + "h " + m + "m";
+    if (h > 0) return h + "h " + m + "m";
+    return m + "m";
   },
 
   formatUptimeFull: function (s) {
@@ -322,6 +323,8 @@ return baseclass.extend({
   },
 
   formatSpeed: function (bytesPerSec) {
+    /* Short pill text keeps b/B distinction (bits vs bytes) so idle
+       "0b" vs "0B" is unambiguous; full units live in the tooltip. */
     if (this.speedUnit === "bytes") {
       if (bytesPerSec >= 1000000)
         return (bytesPerSec / 1000000).toFixed(1) + "MB";
@@ -329,9 +332,9 @@ return baseclass.extend({
       return Math.round(bytesPerSec) + "B";
     }
     var bits = bytesPerSec * 8;
-    if (bits >= 1000000000) return (bits / 1000000000).toFixed(1) + "G";
-    if (bits >= 1000000) return (bits / 1000000).toFixed(1) + "M";
-    if (bits >= 1000) return (bits / 1000).toFixed(1) + "K";
+    if (bits >= 1000000000) return (bits / 1000000000).toFixed(1) + "Gb";
+    if (bits >= 1000000) return (bits / 1000000).toFixed(1) + "Mb";
+    if (bits >= 1000) return (bits / 1000).toFixed(1) + "Kb";
     return Math.round(bits) + "b";
   },
 

@@ -46,8 +46,24 @@
   }
 }
 
-/* Match demo: collapse grids at 880px */
+/* Match demo: collapse grids at 880px.
+   Status pill shrinks instead of vanishing: hide low-priority items first
+   so CPU/RAM stay visible on tablets. Full hide only on small phones. */
 @media (max-width: 880px) {
+  #status-indicators {
+    gap: 6px;
+    padding: 6px 10px;
+    max-width: 45vw;
+    overflow: hidden;
+
+    [data-indicator="uptime"],
+    [data-indicator="net"] {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 640px) {
   #status-indicators {
     display: none !important;
   }
@@ -90,12 +106,13 @@
     }
   }
 
-  /* Cards become horizontal scrollers so wide tables (realtime legends
-     with inline widths) slide instead of clipping. Dropdown/tooltip
-     escapes elsewhere still take precedence when open. */
+  /* Wide tables scroll via the .cbi-section-table-scroller wrapper that
+     footer.ut inserts only when needed — never by turning cards or tables
+     themselves into scrollers (display:block on <table> broke column
+     alignment; overflow-x:auto on .cbi-section clipped rounded corners
+     and trapped dropdowns/tooltips). */
   .cbi-section {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: clip;
   }
 
   /* Legend tables size to content instead of squeezing fixed columns. */
@@ -135,15 +152,14 @@
   .cbi-tabmenu {
     overflow-x: auto;
     flex-wrap: nowrap;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     li a {
       white-space: nowrap;
     }
-  }
-
-  table.cbi-section-table,
-  .table {
-    display: block;
-    overflow-x: auto;
   }
 }

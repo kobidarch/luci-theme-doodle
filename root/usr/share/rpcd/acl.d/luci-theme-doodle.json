@@ -4,7 +4,8 @@
         "read": {
             "uci": [ "doodle" ],
             "file": {
-                "/www/luci-static/doodle/background/*": [ "list" ]
+                "/www/luci-static/doodle/background/*": [ "list", "read" ],
+                "/tmp/doodle-bg-upload": [ "read" ]
             },
             "ubus": {
                 "network.interface": [ "dump" ],
@@ -12,7 +13,12 @@
             }
         },
         "write": {
-            "uci": [ "doodle" ]
+            "uci": [ "doodle" ],
+            "file": {
+                "/www/luci-static/doodle/background/*": [ "write" ],
+                "/tmp/doodle-bg-upload": [ "write" ],
+                "/bin/mv *": [ "exec" ]
+            }
         }
     }
 }

@@ -27,8 +27,13 @@ return baseclass.extend({
 		return document.importNode(doc.documentElement, true);
 	},
 
-	/* Mark the clicked tab active, play the page-leaving fade, then go */
-	goTab: function(container, tab, href) {
+	/* Mark the clicked tab active, play the page-leaving fade, then go.
+	   Modifier/middle clicks bypass the fade so open-in-new-tab still works
+	   (previously preventDefault + forced same-tab nav broke it). */
+	goTab: function(container, tab, href, ev) {
+		if (ev && (ev.button === 1 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey))
+			return; /* let browser handle new-tab/window */
+		if (ev) ev.preventDefault();
 		var prev = container.querySelector('.header-tab.active, .sub-tab.active');
 		if (prev) prev.classList.remove('active');
 		tab.classList.add('active');
@@ -119,8 +124,7 @@ return baseclass.extend({
 
 			(function(tab) {
 				tab.addEventListener('click', function(ev) {
-					ev.preventDefault();
-					self.goTab(container, tab, tab.href);
+					self.goTab(container, tab, tab.href, ev);
 				});
 			})(item);
 
@@ -147,7 +151,9 @@ return baseclass.extend({
 				: L.url(url, child.name);
 
 			var item = E('a', {
-				'class': 'nav-item' + (isActive ? ' open' : ''),
+				/* cycle-* assigned by index (CSS :nth-child miscounts when
+				   .nav-sub siblings interleave). */
+				'class': 'nav-item cycle-' + (i % 6) + (isActive ? ' open' : ''),
 				'href': linkUrl,
 				'data-name': child.name
 			}, [
@@ -188,9 +194,12 @@ return baseclass.extend({
 						E('span', { 'class': 'nav-label' }, [ _(sub.title) ])
 					]);
 
-					/* Highlight clicked item, then navigate with fade */
+					/* Highlight clicked item, then navigate with fade.
+					   Modifier/middle clicks pass through to browser. */
 					(function(el) {
 						el.addEventListener('click', function(ev) {
+							if (ev.button === 1 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey)
+								return;
 							ev.preventDefault();
 							var prev = el.parentNode.querySelector('.nav-item.active');
 							if (prev) prev.classList.remove('active');
@@ -237,10 +246,11 @@ return baseclass.extend({
 		if (children.length == 0)
 			return E([]);
 
-		/* Clear any CBI tabs that footer.ut added before menu loaded */
-		container.innerHTML = '';
-		container.classList.remove('active');
-		document.body.classList.remove('has-sub-nav');
+		/* Coexist with CBI tabs (footer.ut data-source="cbi"): only manage
+		   our own menu tabs so we never wipe CBI content tabs. */
+		var oldMenu = container.querySelectorAll('.sub-tab[data-source="menu"]');
+		for (var m = 0; m < oldMenu.length; m++) oldMenu[m].remove();
+		if (container.querySelector('.sub-tab[data-source="cbi"]')) return E([]);
 
 		var self = this;
 
@@ -250,13 +260,16 @@ return baseclass.extend({
 
 			var tab = E('a', {
 				'class': 'sub-tab' + (isActive ? ' active' : ''),
-				'href': L.url(url, child.name)
+				'href': L.url(url, child.name),
+				'data-source': 'menu'
 			}, [ _(child.title) ]);
 
 			(function(el) {
 				el.addEventListener('click', function(ev) {
+					if (ev.button === 1 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey)
+						return;
 					ev.preventDefault();
-					self.goTab(container, el, el.href);
+					self.goTab(container, el, el.href, ev);
 				});
 			})(tab);
 

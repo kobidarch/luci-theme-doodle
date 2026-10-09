@@ -3,6 +3,7 @@
 "require form";
 "require uci";
 "require fs";
+"require ui";
 
 return view.extend({
   load: function () {
@@ -63,6 +64,18 @@ return view.extend({
     o.default = "14";
 
     o = s.option(
+      form.Value,
+      "device_name",
+      _("Device name"),
+      _(
+        "Display name shown in the sidebar brand and on the login page. Leave empty to use the system hostname.",
+      ),
+    );
+    o.placeholder = _("System hostname");
+    o.datatype = "string";
+    o.rmempty = true;
+
+    o = s.option(
       form.ListValue,
       "speed_unit",
       _("Speed unit"),
@@ -116,11 +129,85 @@ return view.extend({
       }
       return (
         '<span style="color:var(--color-text-secondary)">' +
-        _(
-          'No background set. Upload an image or video named "bg" (e.g. bg.jpg, bg.png, bg.mp4) to /www/luci-static/doodle/background/ via SCP.',
-        ) +
+        _("No background set. Use the upload button below.") +
         "</span>"
       );
+    };
+
+    o = s.option(
+      form.Button,
+      "_bg_upload",
+      _("Upload background"),
+      _(
+        "Choose an image (JPG, PNG, GIF, WebP) or video (MP4, WebM) from this computer. It replaces the current background immediately — no save needed.",
+      ),
+    );
+    o.inputtitle = _("Choose file…");
+    o.inputstyle = "add";
+    o.onclick = function () {
+      var allowed = ["jpg", "jpeg", "png", "gif", "webp", "mp4", "webm"];
+      var tmp = "/tmp/doodle-bg-upload";
+      var dir = "/www/luci-static/doodle/background";
+      return ui.uploadFile(tmp).then(function (reply) {
+        var name = reply && reply.name ? String(reply.name) : "";
+        var ext = name.toLowerCase().split(".").pop();
+        if (allowed.indexOf(ext) < 0) {
+          return fs.remove(tmp).then(
+            function () {
+              ui.addNotification(null, E("p", _("Unsupported file type. Use JPG, PNG, GIF, WebP, MP4 or WebM.")));
+            },
+            function () {
+              ui.addNotification(null, E("p", _("Unsupported file type. Use JPG, PNG, GIF, WebP, MP4 or WebM.")));
+            },
+          );
+        }
+        var dest = dir + "/bg." + ext;
+        return fs.list(dir).then(function (files) {
+          var tasks = [];
+          (files || []).forEach(function (f) {
+            var p = dir + "/" + f.name;
+            if (f.name && f.name.charAt(0) !== "." && /^bg\./.test(f.name) && p !== dest)
+              tasks.push(fs.remove(p));
+          });
+          return Promise.all(tasks);
+        }).then(function () {
+          return fs.exec("/bin/mv", [tmp, dest]);
+        }).then(function (res) {
+          if (res && res.code !== 0)
+            throw new Error(((res.stderr || _("move failed") ) + "").trim());
+          ui.addNotification(null, E("p", _("Background updated to ") + name));
+          window.location.reload();
+        });
+      }).catch(function (e) {
+        if (e && /cancelled/i.test(e.message || "")) return;
+        ui.addNotification(null, E("p", _("Could not install background: ") + ((e && e.message) || e)));
+      });
+    };
+
+    o = s.option(form.Button, "_bg_remove", _("Remove background"), _(
+      "Delete the custom background and return to the default dotted paper. Takes effect immediately.",
+    ));
+    o.inputtitle = _("Remove");
+    o.inputstyle = "remove";
+    o.onclick = function () {
+      var dir = "/www/luci-static/doodle/background";
+      return fs.list(dir).then(function (files) {
+        var tasks = [];
+        (files || []).forEach(function (f) {
+          if (f.name && f.name.charAt(0) !== "." && /^bg\./.test(f.name))
+            tasks.push(fs.remove(dir + "/" + f.name));
+        });
+        if (!tasks.length) {
+          ui.addNotification(null, E("p", _("No custom background to remove.")));
+          return;
+        }
+        return Promise.all(tasks).then(function () {
+          ui.addNotification(null, E("p", _("Background removed.")));
+          window.location.reload();
+        });
+      }).catch(function (e) {
+        ui.addNotification(null, E("p", _("Could not remove background: ") + ((e && e.message) || e)));
+      });
     };
 
     return m.render();

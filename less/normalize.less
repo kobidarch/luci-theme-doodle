@@ -37,7 +37,10 @@ html {
 
 body {
   font-family: var(--font-sans);
-  font-size: var(--font-size-base);
+  /* 1rem so header.ut html{font-size:Npx} actually yields Npx body text.
+     Previously var(--font-size-base)=0.875rem double-scaled (14px setting
+     rendered 12.25px). */
+  font-size: 1rem;
   color: var(--color-text);
   background: var(--bg);
   background-image: var(--bg-dots);

@@ -157,7 +157,10 @@ html {
 }
 body {
   font-family: var(--font-sans);
-  font-size: var(--font-size-base);
+  /* 1rem so header.ut html{font-size:Npx} actually yields Npx body text.
+     Previously var(--font-size-base)=0.875rem double-scaled (14px setting
+     rendered 12.25px). */
+  font-size: 1rem;
   color: var(--color-text);
   background: var(--bg);
   background-image: var(--bg-dots);
@@ -266,7 +269,8 @@ svg.icon,
 /* Standard doodle card */
 /* Raised pastel block (blob) */
 /* Doodle button */
-/* Doodle input */
+/* Doodle input — focus uses accent border + ring so keyboard users can
+   actually see it (previously ink-on-ink + near-identical paper shade). */
 /* ==========================================================================
    Layout — Doodle shell (topbar + sidebar + content)
    IDs preserved for menu-doodle.js / footer.ut so menu-doodle.js / footer.ut keep working.
@@ -329,6 +333,8 @@ svg.icon,
   font-size: 1.25rem;
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
   color: var(--ink);
 }
 .sidebar-footer {
@@ -444,23 +450,25 @@ svg.icon,
   transform: rotate(90deg);
   opacity: 0.8;
 }
-/* Pastel icon circles cycle like the demo */
-.nav-group .nav-item:nth-child(6n + 2) .nav-icon {
-  background: var(--sky);
-}
-.nav-group .nav-item:nth-child(6n + 3) .nav-icon {
-  background: var(--mint);
-}
-.nav-group .nav-item:nth-child(6n + 4) .nav-icon {
+/* Pastel icon circles cycle like the demo.
+   NOTE: assigned via JS cycle-0..5 classes in menu-doodle.js (nth-child
+   miscounts when .nav-sub divs interleave with .nav-item anchors). */
+.nav-group .nav-item.cycle-0 .nav-icon {
   background: var(--butter);
 }
-.nav-group .nav-item:nth-child(6n + 5) .nav-icon {
+.nav-group .nav-item.cycle-1 .nav-icon {
+  background: var(--sky);
+}
+.nav-group .nav-item.cycle-2 .nav-icon {
+  background: var(--mint);
+}
+.nav-group .nav-item.cycle-3 .nav-icon {
   background: var(--lav);
 }
-.nav-group .nav-item:nth-child(6n + 6) .nav-icon {
+.nav-group .nav-item.cycle-4 .nav-icon {
   background: var(--pink);
 }
-.nav-group .nav-item:nth-child(6n + 7) .nav-icon {
+.nav-group .nav-item.cycle-5 .nav-icon {
   background: var(--peach);
 }
 .nav-sub {
@@ -491,17 +499,36 @@ svg.icon,
   align-items: center;
   position: relative;
   gap: 6px;
+  min-width: 0;
+  flex-shrink: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#header-nav::-webkit-scrollbar,
+#header-tabs::-webkit-scrollbar {
+  display: none;
+}
+#header-nav {
+  flex-shrink: 1;
+}
+#header-tabs:empty {
+  display: none;
 }
 .header-title {
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--ink);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 32vw;
+  flex-shrink: 0;
   padding: 6px 14px;
   background: var(--paper-2);
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  /* No hard shadow: the 3px offset drops onto the header's own thick
+     bottom border and the two inks merge, slicing the pill. Flat here. */
 }
 .header-title:empty {
   display: none;
@@ -515,6 +542,7 @@ svg.icon,
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
   border: 2.5px solid transparent;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
@@ -523,21 +551,25 @@ svg.icon,
   border-color: var(--ink);
 }
 .header-tab.active {
-  background: var(--butter);
+  background: var(--color-primary);
   border-color: var(--ink);
-  box-shadow: var(--shadow-sm);
+  /* Flat like the title pill — offset shadow would merge with the
+       header's bottom border. */
 }
 /* ---- Status indicators (doodle mini-pills) ---- */
 #status-indicators {
   margin: 0 auto;
   display: flex;
   align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
   gap: 8px;
   padding: 6px 14px;
   background: var(--paper-2);
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
-  box-shadow: var(--shadow-sm);
+  /* Flat: lives inside the header bar, same reason as above. */
 }
 #status-indicators:empty {
   display: none;
@@ -545,6 +577,7 @@ svg.icon,
 #status-indicators [data-indicator] {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 5px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -578,11 +611,34 @@ svg.icon,
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  /* LuCI core change indicator / spinners arrive as bare text — dress
+     them as doodle mini-pills so "Refreshing" doesn't float raw.
+     Flat (no offset shadow) like every other header-bar pill. */
 }
 .header-actions:empty {
   display: none;
 }
-/* Mobile hamburger (doodle butter square) */
+.header-actions > span,
+.header-actions > a,
+.header-actions > .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+.header-actions > a:hover {
+  transform: translate(-1px, -1px);
+}
+/* Mobile hamburger (doodle butter square). Flat: 42px tall in a 64px bar,
+   its offset shadow would land on the header's bottom border. */
 .menu-toggle {
   display: none;
   background: var(--butter);
@@ -594,7 +650,6 @@ svg.icon,
   justify-content: center;
   cursor: pointer;
   color: var(--on-pastel);
-  box-shadow: var(--shadow-sm);
 }
 .menu-toggle svg {
   width: 22px;
@@ -631,6 +686,7 @@ svg.icon,
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   border: 2.5px solid transparent;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -640,16 +696,18 @@ svg.icon,
   border-color: var(--ink);
 }
 .sub-tab.active {
-  background: var(--sky);
+  background: var(--color-primary);
   color: var(--on-pastel);
   border-color: var(--ink);
-  box-shadow: var(--shadow-sm);
+  /* Flat: the sub-bar has the same thick bottom border as the header. */
 }
 /* ---- Page transition ----
    NOTE: fill mode is backwards (not both): the finished state equals the
    natural styles, and a retained fill would leave a permanent transform
    behind — turning every animated wrapper into a stacking context that
-   traps dropdown/tooltip z-indexes underneath later siblings. */
+   traps dropdown/tooltip z-indexes underneath later siblings.
+   Only #content-wrap animates once per page load: animating #view children
+   re-triggered on every MutationObserver/poll update causing flicker. */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -666,10 +724,9 @@ svg.icon,
   margin-top: var(--header-height);
   min-height: calc(100vh - var(--header-height));
   padding: var(--content-padding);
-  animation: page-enter 0.25s ease backwards;
 }
-#view > :not(.spinning) {
-  animation: page-enter 0.22s ease backwards;
+body:not(.no-page-anim) #content-wrap {
+  animation: page-enter 0.25s ease backwards;
 }
 #view > .spinning {
   background: var(--paper);
@@ -695,14 +752,17 @@ body.has-sub-nav #content-wrap {
   max-width: var(--content-max-width);
   margin: 0 auto;
 }
-/* Mobile overlay */
+/* Mobile overlay — covers content area only (starts below header) so the
+   bright header + hamburger stay intentionally interactive while the page
+   behind dims. Previously top:0 dimmed content+subnav but not header,
+   reading as a half-applied dim. */
 .sidebar-overlay {
   display: none;
   position: fixed;
-  top: 0;
+  top: var(--header-height);
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - var(--header-height));
   background: rgba(43, 35, 32, 0.35);
   z-index: calc(var(--z-sidebar) - 1);
   opacity: 0;
@@ -711,6 +771,14 @@ body.has-sub-nav #content-wrap {
 .sidebar-overlay.active {
   display: block;
   opacity: 1;
+}
+/* Sidebar loading placeholder (replaced by menu-doodle.js) */
+.sidebar-nav .nav-loading {
+  padding: 16px 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  text-align: center;
 }
 /* ---- Page title ---- */
 .page-title {
@@ -780,7 +848,7 @@ body.has-sub-nav #content-wrap {
   ) {
   padding: 0 var(--space-xl);
 }
-.cbi-section > div:last-child {
+.cbi-section > div:last-child:not(.cbi-section-table-scroller):not(.cbi-section-create) {
   padding-bottom: var(--space-xl);
 }
 .cbi-section-descr {
@@ -804,11 +872,14 @@ body.has-sub-nav #content-wrap {
   color: var(--on-pastel);
   border-bottom: var(--stroke) solid var(--ink);
 }
-/* Cycle pastel section headers */
-.cbi-section:nth-of-type(3n + 2) > h3 {
+/* Cycle pastel section headers.
+   NOTE: assigned via JS .cycle-0/1/2 in footer.ut — :nth-of-type counts
+   element type (div), not .cbi-section order, so pure CSS cycling stuck
+   every header on butter (see overview screenshot). */
+.cbi-section.cycle-1 > h3 {
   background: var(--mint);
 }
-.cbi-section:nth-of-type(3n + 3) > h3 {
+.cbi-section.cycle-2 > h3 {
   background: var(--sky);
 }
 /* Head strips sit flush against the card top. Without this, the generic
@@ -836,10 +907,16 @@ body.has-sub-nav #content-wrap {
 /* Head strips escape their padded wrappers so every heading spans the
    full card width: node-level titles pull past node padding, and sections
    nested in value rows (e.g. Backup/Restore/Flash subsections) pull past
-   both node padding and row margins. No more half-filled headers. */
+   both node padding and row margins. No more half-filled headers.
+   Mid-card strips get a top ink rule so square edges read as intentional
+   dividers inside the rounded card instead of harsh cuts. */
 .cbi-section-node > h3 {
   margin-left: calc(-1 * var(--space-xl));
   margin-right: calc(-1 * var(--space-xl));
+  border-radius: 0;
+}
+.cbi-section-node > h3:not(:first-child) {
+  border-top: var(--stroke) solid var(--ink);
 }
 /* Sections nested in value rows sit behind BOTH node padding and row
    margins (24px + 24px — e.g. Backup/Restore/Flash subsections), so they
@@ -941,10 +1018,10 @@ body.has-sub-nav #content-wrap {
   color: var(--on-pastel);
   border-bottom: var(--stroke) solid var(--ink);
 }
-.cbi-section:not(.fade-in):nth-of-type(3n + 2) > .cbi-title > h3 {
+.cbi-section:not(.fade-in).cycle-1 > .cbi-title > h3 {
   background: var(--mint);
 }
-.cbi-section:not(.fade-in):nth-of-type(3n + 3) > .cbi-title > h3 {
+.cbi-section:not(.fade-in).cycle-2 > .cbi-title > h3 {
   background: var(--sky);
 }
 /* Hide/Show toggle pill (overview status includes) */
@@ -1045,8 +1122,8 @@ input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
 textarea:focus {
-  border-color: var(--ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary-active);
+  box-shadow: var(--shadow-sm), 0 0 0 3px color-mix(in srgb, var(--color-primary) 35%, transparent);
   background: var(--paper);
 }
 textarea {
@@ -1068,8 +1145,8 @@ select {
   cursor: pointer;
 }
 select:focus {
-  border-color: var(--ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary-active);
+  box-shadow: var(--shadow-sm), 0 0 0 3px color-mix(in srgb, var(--color-primary) 35%, transparent);
   background: var(--paper);
 }
 /* ---- Buttons (demo .btn) ---- */
@@ -1104,11 +1181,13 @@ select:focus {
   box-shadow: 1px 1px 0 var(--shadow-col);
 }
 .btn:disabled,
-.cbi-button:disabled {
+.cbi-button:disabled,
+.btn[disabled],
+.cbi-button[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 .cbi-button-positive,
 .cbi-button-apply,
@@ -1305,12 +1384,11 @@ table.cbi-section-table .tr:hover .td {
   border-top: none;
 }
 /* Tables whose body has an actions column but whose header doesn't
-   (e.g. repokeys TableSection): stretch the butter header strip over it */
-.table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions)) thead tr::after {
-  content: "";
-  display: table-cell;
+   (e.g. repokeys TableSection): paint the thead row itself butter so the
+   strip spans full width without a zero-width ::after fake cell that
+   misaligned header/body columns. */
+.table:has(tbody .cbi-section-actions):not(:has(thead .cbi-section-actions)) thead tr {
   background: var(--butter);
-  border-bottom: var(--stroke) solid var(--ink);
 }
 /* ---- CBI Dynamic List ---- */
 .cbi-dynlist {
@@ -1319,12 +1397,14 @@ table.cbi-section-table .tr:hover .td {
   min-height: 30px;
   cursor: text;
   gap: 10px;
+  max-width: 100%;
 }
 .cbi-dynlist > .item {
   display: inline-flex;
   flex-wrap: nowrap;
   position: relative;
-  max-width: 25rem;
+  max-width: 100%;
+  width: min(25rem, 100%);
   pointer-events: none;
   color: var(--ink);
   outline: 0;
@@ -1336,6 +1416,7 @@ table.cbi-section-table .tr:hover .td {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 2.5rem !important;
   height: 2.5rem;
   margin: 0;
@@ -1352,8 +1433,10 @@ table.cbi-section-table .tr:hover .td {
   display: block;
   padding: 0.5rem 0.75rem;
   box-sizing: border-box;
-  min-width: 15.5rem;
-  width: 15.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  max-width: calc(100% - 2.5rem);
   height: 2.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1369,16 +1452,19 @@ table.cbi-section-table .tr:hover .td {
   display: inline-flex;
   align-items: center;
   width: 100%;
-  min-width: 15.5rem;
-  flex-wrap: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
   gap: 10px;
 }
 .cbi-dynlist > .add-item input {
   display: block;
   padding: 0.5rem 0.75rem;
   box-sizing: border-box;
-  min-width: 15.5rem;
-  width: 15.5rem;
+  flex: 1 1 10rem;
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
   font-size: 0.85rem;
   line-height: 1.5rem;
   color: var(--ink);
@@ -1387,6 +1473,7 @@ table.cbi-section-table .tr:hover .td {
   background: var(--paper-2);
 }
 .cbi-dynlist > .add-item .cbi-button-add {
+  flex-shrink: 0;
   width: 2.5rem !important;
   padding: 0.5rem 0 !important;
   font-size: 1.2rem;
@@ -1575,7 +1662,7 @@ table.cbi-section-table .tr:hover .td {
   border-color: var(--ink);
 }
 .cbi-tabmenu li.cbi-tab a {
-  background: var(--lav);
+  background: var(--color-primary);
   color: var(--on-pastel);
   border-color: var(--ink);
   box-shadow: var(--shadow-sm);
@@ -1626,7 +1713,7 @@ table.cbi-section-table .tr:hover .td {
 /* ---- Progress bars (demo .bar-track) ---- */
 .cbi-progressbar {
   position: relative;
-  height: 14px;
+  height: 18px;
   background: var(--paper-2);
   border: var(--stroke-thin) solid var(--ink);
   border-radius: 999px;
@@ -1634,23 +1721,29 @@ table.cbi-section-table .tr:hover .td {
 }
 .cbi-progressbar > div {
   height: 100%;
-  border-right: var(--stroke-thin) solid var(--ink);
   transition: width var(--transition-normal);
   background: var(--sky-deep);
+  /* No border-right: at 0% width it rendered as a stray ink tick
+       (Buffered row in overview screenshot). Container border is enough. */
 }
 .cbi-progressbar::after {
   content: attr(title);
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  max-width: calc(100% - 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.72rem;
   font-weight: 800;
   color: var(--ink);
+  background: rgba(255, 253, 249, 0.88);
+  border-radius: 999px;
+  padding: 0 8px;
+  line-height: 1.5;
 }
 /* ---- Checkbox & Radio ---- */
 input[type="checkbox"],
@@ -1676,9 +1769,9 @@ input[type="radio"] {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   padding: var(--space-2xl);
-  max-width: 600px;
-  min-width: 270px;
-  width: calc(100% - var(--space-2xl) * 2);
+  max-width: min(600px, calc(100vw - 32px));
+  min-width: min(270px, calc(100vw - 32px));
+  width: min(600px, calc(100% - 32px));
   max-height: calc(100vh - 4em);
   overflow-y: auto;
   z-index: calc(var(--z-modal) + 1);
@@ -1694,7 +1787,12 @@ input[type="radio"] {
 }
 #modal_overlay > .modal.cbi-modal,
 #modal_overlay > .modal.uci-dialog {
-  max-width: 900px;
+  /* Wide config modals (wireless/radio/interface editors) use the full
+       900px on desktop instead of the 600px base width — the base width
+       previously still applied, cramming tabbed content into a narrow
+       column with both horizontal and vertical scrollbars. */
+  max-width: min(900px, calc(100vw - 32px));
+  width: min(900px, calc(100% - 32px));
 }
 body.modal-overlay-active #modal_overlay {
   display: flex;
@@ -1871,8 +1969,8 @@ body.modal-overlay-active #modal_overlay {
   padding: 10px 12px;
 }
 .login-form .login-field input:focus {
-  border-color: var(--ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary-active);
+  box-shadow: var(--shadow-sm), 0 0 0 3px color-mix(in srgb, var(--color-primary) 35%, transparent);
   background: var(--paper);
 }
 .login-btn {
@@ -1907,6 +2005,20 @@ body.modal-overlay-active #modal_overlay {
   font-size: 0.85rem;
   margin-bottom: var(--space-lg);
   text-align: center;
+}
+.login-repo {
+  margin: var(--space-lg) 0 0;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.login-repo a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.login-repo a:hover {
+  color: var(--ink);
+  text-decoration: underline;
 }
 /* ==========================================================================
    Responsive — doodle mobile (matches demo 880px breakpoint)
@@ -1947,8 +2059,22 @@ body.modal-overlay-active #modal_overlay {
     display: block;
   }
 }
-/* Match demo: collapse grids at 880px */
+/* Match demo: collapse grids at 880px.
+   Status pill shrinks instead of vanishing: hide low-priority items first
+   so CPU/RAM stay visible on tablets. Full hide only on small phones. */
 @media (max-width: 880px) {
+  #status-indicators {
+    gap: 6px;
+    padding: 6px 10px;
+    max-width: 45vw;
+    overflow: hidden;
+  }
+  #status-indicators [data-indicator="uptime"],
+  #status-indicators [data-indicator="net"] {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
   #status-indicators {
     display: none !important;
   }
@@ -1984,12 +2110,13 @@ body.modal-overlay-active #modal_overlay {
   .cbi-page-actions .cbi-button {
     width: 100%;
   }
-  /* Cards become horizontal scrollers so wide tables (realtime legends
-     with inline widths) slide instead of clipping. Dropdown/tooltip
-     escapes elsewhere still take precedence when open. */
+  /* Wide tables scroll via the .cbi-section-table-scroller wrapper that
+     footer.ut inserts only when needed — never by turning cards or tables
+     themselves into scrollers (display:block on <table> broke column
+     alignment; overflow-x:auto on .cbi-section clipped rounded corners
+     and trapped dropdowns/tooltips). */
   .cbi-section {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: clip;
   }
   /* Legend tables size to content instead of squeezing fixed columns. */
   .cbi-section > .table[style*="width"],
@@ -2023,14 +2150,13 @@ body.modal-overlay-active #modal_overlay {
   .cbi-tabmenu {
     overflow-x: auto;
     flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+  .cbi-tabmenu::-webkit-scrollbar {
+    display: none;
   }
   .cbi-tabmenu li a {
     white-space: nowrap;
-  }
-  table.cbi-section-table,
-  .table {
-    display: block;
-    overflow-x: auto;
   }
 }
 /* ==========================================================================
@@ -2127,13 +2253,16 @@ body.modal-overlay-active #modal_overlay {
   padding: 8px 2px 0;
 }
 /* Port status grid — plain ink frames here, no hard shadows, with
-   comfortable inner padding (the section-level flatten above must
-   not win). */
+   comfortable inner padding. Specificity (0,3,1) beats the section-level
+   flatten above (0,2,0) so grid boxes keep their cards even inside a
+   .cbi-section. Previously 0,1,1 lost and ports rendered borderless. */
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"],
 div[style*="display:grid;grid-template-columns:repeat"] {
   gap: var(--space-md) !important;
   margin-top: var(--space-lg) !important;
   margin-bottom: var(--space-lg) !important;
 }
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox,
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox {
   background: var(--paper);
   border: var(--stroke) solid var(--ink);
@@ -2143,14 +2272,25 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox {
   min-width: 0;
   text-align: center;
 }
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-head,
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-head {
   padding: 8px;
   font-size: 0.85rem;
+  align-self: stretch;
+  border: none;
+  border-bottom: var(--stroke) solid var(--ink);
+  border-radius: 0;
 }
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-head:first-child,
+div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-head:first-child {
+  border-radius: calc(var(--radius-lg) - var(--stroke)) calc(var(--radius-lg) - var(--stroke)) 0 0;
+}
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body,
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body {
   padding: 10px 8px 12px;
   font-size: 0.82rem;
 }
+.cbi-section div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body img,
 div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-body img {
   width: 28px;
   height: 28px;
@@ -2166,7 +2306,10 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
   flex: 1 1 300px;
   margin: 0;
 }
-/* Badges → doodle tagpills */
+/* Badges → doodle tagpills.
+   Clamped: long SSIDs / ifnames / signal strings (wireless assoc + scan
+   tables) truncate with ellipsis inside the pill instead of bursting past
+   the ink border. .large keeps wrapping (mini-card, see below). */
 .ifacebadge {
   display: inline-flex;
   align-items: center;
@@ -2178,10 +2321,44 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
   font-size: 0.78rem;
   font-weight: 800;
   box-shadow: 2px 2px 0 var(--shadow-col);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .ifacebadge img {
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
+}
+.ifacebadge > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Signal badges (wireless status/scan/assoc): render_signal_badge emits
+   div.ifacebadge OR div.center, both carrying [data-signal] — clamp both
+   variants. The .center form previously escaped the pill clamp above, and
+   its value uses non-breaking spaces (dBm/rate strings) that can't wrap,
+   so it slid straight past the ink. Full values stay on title for hover. */
+div[data-signal] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+div[data-signal] img {
+  flex-shrink: 0;
+}
+div[data-signal] > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 /* Large status badge (interface modal Status row) — roomy mini card
    instead of a stretched capsule, text wraps inside. */
@@ -2209,6 +2386,9 @@ div[style*="display:grid;grid-template-columns:repeat"] > .ifacebox > .ifacebox-
   border: 2px solid var(--ink);
   background: var(--lav);
   color: var(--on-pastel);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
   /* Zone-colored badge (inline style) — pastel-ify to fit doodle */
 }
 .zonebadge[style*="background"] {
@@ -2338,7 +2518,7 @@ div > .ifacebox:first-child .cbi-tooltip {
   overflow-y: auto;
   width: 100%;
   white-space: pre-wrap;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 pre {
   background: var(--paper-2);
@@ -2560,6 +2740,8 @@ progress::-moz-progress-bar {
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   margin-bottom: var(--space-xl);
+  /* JS .cycle-* classes (footer.ut) are authoritative; nth-of-type kept
+     as no-JS fallback. */
 }
 .nft-table > h3 {
   display: flex;
@@ -2572,14 +2754,19 @@ progress::-moz-progress-bar {
   color: var(--on-pastel);
   border-bottom: var(--stroke) solid var(--ink);
 }
-.nft-table:nth-of-type(3n + 2) > h3 {
+.nft-table:nth-of-type(3n + 2) > h3,
+.nft-table.cycle-1 > h3 {
   background: var(--mint);
 }
-.nft-table:nth-of-type(3n + 3) > h3 {
+.nft-table:nth-of-type(3n + 3) > h3,
+.nft-table.cycle-2 > h3 {
   background: var(--sky);
 }
 .nft-chain {
-  padding: var(--space-md) var(--space-xl) var(--space-xl);
+  /* Even outer rhythm (16 top / 24 sides+bottom); inner gaps are a flat
+     12px. Previously 12/24/24 + h4 top 8 + hook 12 + table 12 stacked
+     bottom-heavy, and core's .25em !important cells looked lost inside. */
+  padding: var(--space-lg) var(--space-xl) var(--space-xl);
 }
 .nft-chain + .nft-chain {
   border-top: var(--stroke-thin) dashed var(--ink);
@@ -2594,7 +2781,7 @@ progress::-moz-progress-bar {
   border-radius: var(--radius-sm);
   padding: 6px 12px;
   box-shadow: var(--shadow-sm);
-  margin: var(--space-sm) 0 var(--space-md);
+  margin: 0 0 var(--space-md);
 }
 .nft-chain-hook {
   margin-bottom: var(--space-md);
@@ -2611,10 +2798,23 @@ progress::-moz-progress-bar {
   padding: 3px 0;
   margin: 0;
 }
-/* Rule tables live inside the .nft-table card: flat, inset, no double frame */
+/* Rule tables live inside the .nft-table card: flat, inset, no double frame.
+   Spacing via margin-top between siblings so the last table sits flush on
+   the chain padding (previously every table added margin-bottom, doubling
+   the bottom gap). Cell padding matches theme tables — core forces
+   .25em !important, so the override needs !important too. */
 .nft-table table.nft-rules {
-  margin: 0 0 var(--space-md);
+  margin: 0;
   width: 100%;
+}
+.nft-table table.nft-rules + table.nft-rules {
+  margin-top: var(--space-md);
+}
+.nft-table table.nft-rules tr > td {
+  padding: 8px 12px !important;
+}
+.nft-table table.nft-rules tr:last-child > td {
+  padding-bottom: 16px !important;
 }
 /* Wide tables (diagnostics address row…) scroll inside the card instead
    of being sliced by the ink border. footer.ut inserts the scroller only
@@ -2682,15 +2882,8 @@ progress::-moz-progress-bar {
   font-family: var(--font-mono);
   min-height: 160px;
   max-width: none;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-}
-[data-page="admin-network-diagnostics"] #command-output textarea:focus {
-  background: transparent;
-  box-shadow: none;
+  /* Keep doodle input framing so output doesn't float as raw borderless
+       text (previously border:none/transparent). */
 }
 @media (min-width: 901px) {
   [data-page="admin-network-diagnostics"] {
@@ -2723,6 +2916,11 @@ progress::-moz-progress-bar {
   color: var(--ink);
   box-shadow: 2px 2px 0 var(--shadow-col);
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 .label.warning {
   background: var(--butter);
@@ -2812,4 +3010,60 @@ table.cbi-section-table tbody tr td > em:only-child {
 }
 .td.middle {
   vertical-align: middle;
+}
+/* ---- Overflow guards: long tokens (SSIDs, BSSIDs, encryption strings,
+   wifirate details, hostnames) must wrap or truncate instead of bursting
+   past ink borders. Worst on wireless scan/assoc tables, but applied
+   globally since firewall/DHCP/software tables hit the same. ---- */
+/* In-content table cells wrap long tokens. Action columns keep nowrap so
+   button groups stay on one line (mobile already unwraps them). */
+.table td,
+.table .td,
+table.cbi-section-table tbody tr td {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.table td:last-child:has(.cbi-button),
+.table .td:last-child:has(.cbi-button),
+table.cbi-section-table tbody tr td:last-child:has(.cbi-button) {
+  overflow-wrap: normal;
+}
+/* Badges inside cells never exceed the cell. */
+.table td > .ifacebadge,
+.table .td > .ifacebadge,
+.table td > .label,
+.table .td > .label {
+  max-width: 100%;
+}
+/* Modals never get scroller wrappers (footer.ut skips .modal), so modal
+   tables wrap instead: scan results (SSID/BSSID/encryption/rate) fit the
+   90% scan modal instead of slicing through its ink frame. */
+.modal .table th,
+.modal table.cbi-section-table thead th,
+.modal .table .th {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.modal .table td,
+.modal .table .td,
+.modal table.cbi-section-table tbody tr td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+/* Form values + descriptions wrap long tokens (hostnames, paths, keys). */
+.cbi-value-field,
+.cbi-value-description {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+/* Catch-all: bare text LuCI renders without wrappers (wireless itemlist
+   SSID/BSSID/encryption/mode status lines, host hints, scan spans) inherits
+   wrapping so unbroken 32-char tokens can't burst the ink. Explicit
+   white-space:nowrap rules (pills, th, buttons) still win where set, and
+   pills truncate via their own ellipsis guards above. */
+.cbi-section,
+.modal,
+.cbi-dropdown ul.dropdown {
+  overflow-wrap: anywhere;
 }
