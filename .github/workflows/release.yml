@@ -7,18 +7,16 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+  pull-requests: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build packages
         env:
@@ -105,33 +103,37 @@ jobs:
 
           ls -la dist/apk_staging/
 
-      - name: Stage Pages feed
+      - name: Open feed publish PR
+        # Serve the feed from the main branch (Pages builds the branch).
+        # Past artifact deployments were accepted and green yet silently
+        # never served — which broke apk/opkg update with no signal — so the
+        # feed is published as a branch PR instead. Direct pushes to main
+        # are PR-gated by the repo ruleset, hence a PR (not a push).
+        # Merge it and the feed goes live on the next branch Pages build.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VER="${{ steps.version.outputs.version }}"
           IPK="${{ steps.version.outputs.ipk }}"
           APK="${{ steps.version.outputs.apk }}"
+          BRANCH="feed/v${VER}"
 
-          # Assemble exactly what the site must serve: feed dirs only.
-          # (Pages deploys this artifact directly — no branch push, so a
-          # failed copy can never again look like a green deploy.)
-          rm -rf pages && mkdir -p pages/packages pages/apk
-          cp "dist/$IPK" pages/packages/
-          cp dist/Packages dist/Packages.gz dist/Packages.sig pages/packages/
-          cp "dist/$APK" pages/apk/
-          cp dist/apk_staging/packages.adb pages/apk/
-          ls -R pages
-
-      - name: Deploy to GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: pages
-
-      - name: Deploy Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          rm -rf packages apk
+          mkdir -p packages apk
+          cp "dist/$IPK" dist/Packages dist/Packages.gz dist/Packages.sig packages/
+          cp "dist/$APK" dist/apk_staging/packages.adb apk/
+          ls -R packages apk
+          git add packages apk
+          git commit -m "Feed: publish v${VER} packages" || echo "nothing to commit"
+          git push origin "$BRANCH" --force
+          gh pr create --base main --head "$BRANCH" \
+            --title "Feed: publish v${VER}" \
+            --body "Signed feed files built from tag v${VER}. Merge to put the opkg/apk feed live." \
+          || gh pr edit "$BRANCH" --title "Feed: publish v${VER}" \
+               --body "Signed feed files built from tag v${VER}. Merge to put the opkg/apk feed live."
 
       - name: Create or update GitHub Release
         env:
