@@ -3,7 +3,7 @@ set -e
 
 PKG_NAME="luci-theme-doodle"
 PKG_VERSION="$(tr -d '[:space:]' < "$(dirname "$0")/ucode/template/themes/doodle/version")"
-PKG_RELEASE="1"
+PKG_RELEASE="2"
 MAINTAINER="kobidarch <alanimokbulkobid@gmail.com>"
 DESCRIPTION="Doodle - Pastel doodle theme for LuCI (opaque, ink borders, hard shadows)"
 HOMEPAGE="https://github.com/kobidarch/luci-theme-doodle"

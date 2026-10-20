@@ -1,14 +1,14 @@
 Package: luci-theme-doodle
-Version: 1.1.6-1
+Version: 1.1.6-2
 Architecture: all
 Maintainer: kobidarch <alanimokbulkobid@gmail.com>
 Section: luci
 Priority: optional
-Installed-Size: 380
+Installed-Size: 264
 Description: Doodle - Pastel doodle theme for LuCI (opaque, ink borders, hard shadows)
 Homepage: https://github.com/kobidarch/luci-theme-doodle
 License: GPL-3.0
-Filename: luci-theme-doodle_1.1.6-1_all.ipk
-Size: 111945
-SHA256sum: cb538c2c57427dc65ec17c94dd77da69b94d6c0db4667e63aec5383df47c6ad8
+Filename: luci-theme-doodle_1.1.6-2_all.ipk
+Size: 111153
+SHA256sum: 5806c77d8218b87b59a3fea1214ae076e501e08ded11a57283b9a594385ac84c
 

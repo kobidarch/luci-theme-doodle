@@ -742,6 +742,18 @@ progress {
   }
 }
 
+[data-page="admin-status-nftables"] .nft-table {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+[data-page="admin-status-nftables"] .nft-table > .cbi-section > h3 {
+  border-bottom: 0;
+}
+
 /* Wide tables (diagnostics address row…) scroll inside the card instead
    of being sliced by the ink border. footer.ut inserts the scroller only
    when the table actually overflows, so fitting tables keep stretching
@@ -815,8 +827,7 @@ progress {
     font-family: var(--font-mono);
     min-height: 160px;
     max-width: none;
-    /* Keep doodle input framing so output doesn't float as raw borderless
-       text (previously border:none/transparent). */
+    border: 0;
   }
 
   /* Three command columns share the card evenly and shrink to fit, so
