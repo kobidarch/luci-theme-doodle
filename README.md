@@ -11,7 +11,7 @@ borders, hard offset shadows.
 
 | Overview | Login |
 |----------|-------|
-| ![Overview](screenshots/overview.png) | ![Login](screenshots/login.png) |
+| ![Overview](screenshots/overview-1.1.6.png) | ![Login](screenshots/login-1.1.6.png) |
 
 ## Look
 
