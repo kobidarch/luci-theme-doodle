@@ -17,8 +17,8 @@ Five ways to install, from easiest to most hands-on. Pick one.
 
 ```sh
 # One-time: trust the feed signing key
-wget -O /etc/opkg/keys/456471a41001d24a \
-  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/opkg/keys/456471a41001d24a
+wget -O /etc/opkg/keys/71a41001d24a5ce1 \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/opkg/keys/71a41001d24a5ce1
 
 echo "src/gz doodle https://kobidarch.github.io/luci-theme-doodle/packages" >> /etc/opkg/customfeeds.conf
 opkg update
@@ -241,6 +241,18 @@ rm -f /tmp/luci-indexcache /tmp/luci-modulecache
 The file must be named exactly `bg` plus extension, e.g.
 `/www/luci-static/doodle/background/bg.jpg`
 (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.mp4`, `.webm`).
+
+**`Signature check failed` on opkg.**
+The feed key must be stored as `/etc/opkg/keys/<fingerprint>`.
+Re-install it under the correct name and remove the old misspelled
+file if present:
+
+```sh
+rm -f /etc/opkg/keys/456471a41001d24a
+wget -O /etc/opkg/keys/71a41001d24a5ce1 \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/opkg/keys/71a41001d24a5ce1
+opkg update
+```
 
 **`opkg` vs `apk` — which am I on?**
 `cat /etc/openwrt_release`. Release `25.12` and newer use `apk`

@@ -26,10 +26,16 @@ Full guide with five methods in [INSTALL.md](INSTALL.md). Quickest:
 
 ```sh
 # opkg (24.10 and earlier)
+# one-time: trust the feed signing key
+wget -O /etc/opkg/keys/71a41001d24a5ce1 \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/opkg/keys/71a41001d24a5ce1
 echo "src/gz doodle https://kobidarch.github.io/luci-theme-doodle/packages" >> /etc/opkg/customfeeds.conf
 opkg update && opkg install luci-theme-doodle
 
 # apk (25.12+)
+# one-time: trust the feed signing key
+wget -O /etc/apk/keys/doodle-apk.pem \
+  https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/apk/keys/doodle-apk.pem
 echo "https://kobidarch.github.io/luci-theme-doodle/apk/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 apk update && apk add luci-theme-doodle
 ```

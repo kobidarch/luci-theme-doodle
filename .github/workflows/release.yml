@@ -162,6 +162,11 @@ jobs:
 
           **opkg (OpenWrt 24.10 and earlier):**
           \`\`\`sh
+          # First install: fetch signing public key (one-time)
+          wget -O /etc/opkg/keys/71a41001d24a5ce1 \
+            https://raw.githubusercontent.com/kobidarch/luci-theme-doodle/main/root/etc/opkg/keys/71a41001d24a5ce1
+
+          # Add feed and install
           echo "src/gz doodle https://kobidarch.github.io/luci-theme-doodle/packages" >> /etc/opkg/customfeeds.conf
           opkg update
           opkg install luci-theme-doodle
