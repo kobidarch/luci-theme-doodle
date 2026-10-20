@@ -143,6 +143,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VER="${{ steps.version.outputs.version }}"
+          REL="${{ steps.version.outputs.release }}"
           IPK="dist/${{ steps.version.outputs.ipk }}"
           APK="dist/${{ steps.version.outputs.apk }}"
 
@@ -188,8 +189,8 @@ jobs:
           \`\`\`
 
           ### From release (manual)
-          - **apk**: \`apk add --allow-untrusted luci-theme-doodle-${VER}-r1.apk\`
-          - **opkg**: \`opkg install luci-theme-doodle_${VER}-1_all.ipk\`
+          - **apk**: \`apk add --allow-untrusted luci-theme-doodle-${VER}-r${REL}.apk\`
+          - **opkg**: \`opkg install luci-theme-doodle_${VER}-${REL}_all.ipk\`
           NOTES_EOF
 
             gh release create "v${VER}" "$IPK" "$APK" \
